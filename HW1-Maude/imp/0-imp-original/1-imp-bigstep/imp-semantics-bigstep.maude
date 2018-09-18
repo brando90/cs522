@@ -16,21 +16,25 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
   var I I1 I2 : Int .  var T : Bool .
   var A A1 A2 : AExp .  var B B1 B2 : BExp .  var S S1 S2 : Stmt .
 
-  rl < I,Sigma > => < I > .
- crl < X,Sigma > => < Sigma(X) > if Sigma(X) =/=Bool undefined .
+--- AExp's
+ crl < I, Sigma > => < Error > if Sigma ==Bool Error .
+ crl < I, Sigma > => < I > if Sigma =/=Bool Error .
+ crl < X, Sigma > => < Sigma(X) > if Sigma(X) =/=Bool undefined .
+ --- ADD
  crl < A1 + A2 , Sigma > => < I1 +Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
  crl < A1 + A2 , Sigma > => < Error > if < A1, Sigma > => < Error >  .
  crl < A1 + A2 , Sigma > => < Error > if < A2, Sigma > => < Error >  .
-
+ --- DIV
  crl < A1 / A2 , Sigma > => < I1 /Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > /\ I2 =/=Bool 0 .
  crl < A1 / A2 , Sigma > => < Error > if < A2,Sigma > => < 0 > .
 
-
-  rl < T,Sigma > => < T > .
- crl < A1 <= A2,Sigma > => < I1 <=Int I2 >
-  if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
+--- BExp's
+  rl < T, Sigma > => if Sigma ==Bool Error then < Sigma > else < T > fi .
+ --- Less than or equal <=
+ crl < A1 <= A2,Sigma > => < I1 <=Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
  crl < I1 <= A2,Sigma > => < Error > if < A2,Sigma > => < Error > .
  crl < A1 <= A2,Sigma > => < Error > if < A1,Sigma > => < Error > .
+ --- 
  crl < ! B,Sigma > => < false >
   if < B,Sigma > => <  true > .
  crl < ! B,Sigma > => < true >
@@ -40,12 +44,11 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
  crl < B1 && B2,Sigma > => < T >
   if < B1,Sigma > => < true > /\ < B2,Sigma > => < T > .
 
+---
   rl < S, Error > => < Error > .
-  rl < {},Sigma > => < Sigma > .
- crl < {S},Sigma > => < Sigma' >
-  if < S,Sigma > => < Sigma' > .
- crl < X = A ;,Sigma > => < Error >
-  if < A,Sigma > => < Error > /\ Sigma(X) =/=Bool undefined .
+  rl < {}, Sigma > => < Sigma > .
+ crl < {S}, Sigma > => < Sigma' > if < S,Sigma > => < Sigma' > .
+ crl < X = A ; , Sigma > => < Error > if < A,Sigma > => < Error > /\ Sigma(X) =/=Bool undefined .
 
  crl < X = A ;,Sigma > => < Sigma[I / X] >
   if < A,Sigma > => < I > /\ Sigma(X) =/=Bool undefined .

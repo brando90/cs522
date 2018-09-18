@@ -29,24 +29,28 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
  crl < A1 / A2 , Sigma > => < Error > if < A2,Sigma > => < 0 > .
 
 --- BExp's
+ --- truth in a state
   rl < T, Sigma > => if Sigma ==Bool Error then < Sigma > else < T > fi .
  --- Less than or equal <=
  crl < A1 <= A2,Sigma > => < I1 <=Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
  crl < I1 <= A2,Sigma > => < Error > if < A2,Sigma > => < Error > .
  crl < A1 <= A2,Sigma > => < Error > if < A1,Sigma > => < Error > .
- --- 
- crl < ! B,Sigma > => < false >
-  if < B,Sigma > => <  true > .
- crl < ! B,Sigma > => < true >
-  if < B,Sigma > => < false > .
- crl < B1 && B2,Sigma > => < false >
-  if < B1,Sigma > => < false > .
- crl < B1 && B2,Sigma > => < T >
-  if < B1,Sigma > => < true > /\ < B2,Sigma > => < T > .
+ --- Not
+ crl < ! B,Sigma > => < false > if < B,Sigma > => < true > .
+ crl < ! B,Sigma > => < true > if < B,Sigma > => < false > .
+ crl < ! B,Sigma > => < Error > if Sigma ==Bool Error .
+ crl < ! B,Sigma > => < Error > if < B,Sigma > => < Error > .
+ --- AND
+ crl < B1 && B2,Sigma > => < false > if < B1,Sigma > => < false > .
+ crl < B1 && B2,Sigma > => < false > if < B2,Sigma > => < false > .
+ crl < B1 && B2,Sigma > => < T > if < B1,Sigma > => < true > /\ < B2,Sigma > => < T > .
+ crl < B1 && B2,Sigma > => < Error > if < B1,Sigma > => < Error > .
+ crl < B1 && B2,Sigma > => < Error > if < B2,Sigma > => < Error > .
 
 ---
-  rl < S, Error > => < Error > .
+  ---rl < S, Error > => < Error > .
   rl < {}, Sigma > => < Sigma > .
+  
  crl < {S}, Sigma > => < Sigma' > if < S,Sigma > => < Sigma' > .
  crl < X = A ; , Sigma > => < Error > if < A,Sigma > => < Error > /\ Sigma(X) =/=Bool undefined .
 

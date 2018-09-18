@@ -7,8 +7,6 @@ mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-SYNTAX + STATE .
   op <_,_> : Stmt State -> Configuration .
   op   <_> : State -> Configuration .
   op   <_> : Pgm -> Configuration .
-  ---
-  op Error : -> State .
 endm
 
 mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
@@ -18,19 +16,12 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
 
   rl < I,Sigma > => < I > .
  crl < X,Sigma > => < Sigma(X) > if Sigma(X) =/=Bool undefined .
- crl < A1 + A2 , Sigma > => < I1 +Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
- crl < A1 + A2 , Sigma > => < Error > if < A1, Sigma > => < Error >  .
- crl < A1 + A2 , Sigma > => < Error > if < A2, Sigma > => < Error >  .
-
- crl < A1 / A2 , Sigma > => < I1 /Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > /\ I2 =/=Bool 0 .
- crl < A1 / A2 , Sigma > => < Error > if < A2,Sigma > => < 0 > .
-
+ crl < A1 + A2,Sigma > => < I1 +Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
+ crl < A1 / A2,Sigma > => < I1 /Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > /\ I2 =/=Bool 0 .
 
   rl < T,Sigma > => < T > .
  crl < A1 <= A2,Sigma > => < I1 <=Int I2 >
   if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
- crl < I1 <= A2,Sigma > => < Error > if < A2,Sigma > => < Error > .
- crl < A1 <= A2,Sigma > => < Error > if < A1,Sigma > => < Error > .
  crl < ! B,Sigma > => < false >
   if < B,Sigma > => <  true > .
  crl < ! B,Sigma > => < true >
@@ -40,16 +31,11 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
  crl < B1 && B2,Sigma > => < T >
   if < B1,Sigma > => < true > /\ < B2,Sigma > => < T > .
 
-  rl < S, Error > => < Error > .
   rl < {},Sigma > => < Sigma > .
  crl < {S},Sigma > => < Sigma' >
   if < S,Sigma > => < Sigma' > .
- crl < X = A ;,Sigma > => < Error >
-  if < A,Sigma > => < Error > /\ Sigma(X) =/=Bool undefined .
-
  crl < X = A ;,Sigma > => < Sigma[I / X] >
   if < A,Sigma > => < I > /\ Sigma(X) =/=Bool undefined .
-
  crl < S1 S2,Sigma > => < Sigma2 >
   if < S1,Sigma > => < Sigma1 > /\ < S2,Sigma1 > => < Sigma2 > .
  crl < if (B) S1 else S2,Sigma > => < Sigma1 >

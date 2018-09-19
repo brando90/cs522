@@ -125,8 +125,25 @@ rew < { x = 1 ; } { x = 2 / 0 ; }  , x |-> 0 > .
 
 --- BigStep-IF-True
 rew < if (true) {} else {} , .State > .
+rew < if (true) {} else {} , Error > .
 rew < if (true) { x = 2 ; } else { } , x |-> 0 > .
 rew < if (true) { x = 2 / 0 ; } else { } , x |-> 0 > .
 rew < if ( 1 / 0 <= 3 ) { x = 2 / 0 ; } else { } , x |-> 0 > .
+rew < if (true) { x = 2 ; } else { x = 33 / 0 ; } , Error > .
+
+--- BigStep-IF-True
+rew < if ( 1 / 0 <= 3 ) { x = 2 / 0 ; } else { } , x |-> 0 > .
+rew < if (false) { x = 2 / 0 ; } else { x = 33 ; } , x |-> 0 > .
+rew < if (false) { x = 2 ; } else { x = 33 / 0 ; } , x |-> 0 > .
+rew < if (false) { x = 2 ; } else { x = 33 / 0 ; } , Error > .
+rew < if (false) {} else {} , Error > .
+
+--- BigStep-While-False Tests
+rew < while (false) { x = 96 ; }, x |-> 0 > .
+rew < while (1 / 0 <= 0) { x = 96 ; }, x |-> 0 > .
+rew < while (false) { x = 96 ; }, Error > .
+
+--- BigStep-While-True Tests
+rew < while (x <= 3) {x = x + 1 ; } , x |-> 0 > .
 
 q

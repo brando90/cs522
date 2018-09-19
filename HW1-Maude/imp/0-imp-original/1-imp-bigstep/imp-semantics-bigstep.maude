@@ -87,14 +87,22 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
  crl < if (B) S1 else S2,Sigma > => < Error > if < B,Sigma > => < Error > .
  ---crl < if (B) S1 else S2,Sigma > => < Sigma1 > if < B,Sigma > => < true > /\ < S1,Sigma > => < Error > .
 
+--- BigStep-IF-False
+ crl < if (B) S1 else S2,Sigma > => < Sigma2 > if < B,Sigma > => < false > /\ < S2,Sigma > => < Sigma2 > .
+ ---crl < if (B) S1 else S2,Sigma > => < Error > if < B,Sigma > => < false > /\ < S2,Sigma > => < Error > .
 
- crl < if (B) S1 else S2,Sigma > => < Sigma2 >
-  if < B,Sigma > => < false > /\ < S2,Sigma > => < Sigma2 > .
- crl < while (B) S,Sigma > => < Sigma >
-  if < B,Sigma > => < false > .
- crl < while (B) S,Sigma > => < Sigma' >
-  if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < Sigma' > .
+--- BigStep-While-False
+ crl < while (B) S,Sigma > => < Sigma > if < B,Sigma > => < false > .
+ crl < while (B) S,Sigma > => < Error > if < B,Sigma > => < Error > .
 
- crl < int Xl ; S > => < Sigma >
-  if < S,(Xl |-> 0) > => < Sigma > .
+--- BigStep-While-True
+ crl < while (B) S,Sigma > => < Sigma' > if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < Sigma' > .
+ crl < while (B) S,Sigma > => < Error > if < B,Sigma > => < true > /\ < S, Sigma > => < Error > .
+ crl < while (B) S,Sigma > => < Error > if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < Error > .
+ crl < while (B) S,Sigma > => < Error > if < B,Sigma > => < true > /\ Sigma ==Bool Error .
+
+--- BigStep-PGM
+ crl < int Xl ; S > => < Sigma > if < S,(Xl |-> 0) > => < Sigma > .
+ crl < int Xl ; S > => < Error > if < S,(Xl |-> 0) > => < Error > .
+
 endm

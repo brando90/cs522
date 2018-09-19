@@ -49,8 +49,12 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
  --- crl o < X,Sigma > => < errorStmt,Sigma > if Sigma(X) ==Bool errorStmt .
 
 --- SmallStep-ADD
- crl o < A1 + A2,Sigma > => < A1' + A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
- crl o < A1 + A2,Sigma > => < A1 + A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
+ crl o < A1 + A2,Sigma > => < A1' + A2,Sigma > if o < A1,Sigma > => < A1',Sigma > /\ A1' =/=Bool errorAr .
+ crl o < A1 + A2,Sigma > => < errorAr,Sigma > if o < A1,Sigma > => < A1',Sigma > /\ A1' ==Bool errorAr .
+
+ crl o < A1 + A2,Sigma > => < A1 + A2',Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' =/=Bool errorAr .
+ crl o < A1 + A2,Sigma > => < errorAr,Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' ==Bool errorAr .
+
   rl o < I1 + I2,Sigma > => < I1 +Int I2,Sigma > .
 
 --- SmallStep-DIV
@@ -62,6 +66,7 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
 
  crl o < I1 / I2,Sigma > => < I1 /Int I2,Sigma > if I2 =/=Bool 0 .
 
+ crl o < A1 / A2,Sigma > => < errorAr,Sigma > if A2 ==Bool 0 . --- TODO do we need this?
  crl o < I1 / I2,Sigma > => < errorAr,Sigma > if I2 ==Bool 0 .
 
 ---

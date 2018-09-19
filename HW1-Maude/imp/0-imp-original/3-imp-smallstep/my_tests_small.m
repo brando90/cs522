@@ -37,8 +37,6 @@ rew * < errorStmt, .State > .
 rew o < x, x |-> 3 > .
 --- rew o < x, x |-> errorAr > .
 
---- SmallStep-ADD
-
 --- SmallStep-DIV
 rew o < 4 / 2 , .State > .
 rew o < 4 / 0 , .State > .
@@ -51,12 +49,25 @@ rew o < errorAr / 1 , .State > .
 rew * < errorAr / 1 , .State > .
 rew o < 1 / errorAr , .State > .
 rew * < 1 / errorAr , .State > .
-
 rew o < ( 4 / 0 ) / 1 , .State > .
+rew o < ( 4 / 0 ) / 1 , x |-> 3 > .
+rew o < 4 / ( 1 / 0 ) , .State > .
+rew * < ( 4 / 0 ) / 1 , .State > .
+rew o < x / 0 , .State > .
+rew o < x / 1 , x |-> 4 > .
+rew * < x / 1 , x |-> 4 > .
+rew * < ( x / 0 ) / x , .State > .
+rew * < x / ( x / 0 ) , .State > .
 
---- rew o < ( 4 / 0 ) / 1 , .State > .
---- rew o < 4 / (1 / 0 ) , .State > .
---- rew o < ( 4 / 0 ) / 1 , .State > .
---- rew * < ( 4 / 0 ) / 1 , .State > .
+--- SmallStep-ADD
+rew o < 1 + ( 1 + 2 ) , .State > .
+rew * < 1 + ( 1 + 2 ) , .State > .
+rew o < ( 1 / 0 ) + 1 , .State > .
+rew o < 1 + ( 1 / 0 ) , .State > .
+rew * < 1 + ( 1 + 2 ) + (2 / (3 / 0 ) + 0 ), .State > .
+rew o < x + ( x / 0 ) , .State > .
+rew o < x + ( x / 0 ) , x |-> 3 > .
+rew * < x + ( x / 0 ) , x |-> 3 > .
+rew * < x + ( x / 0 ) , .State > .
 
 q

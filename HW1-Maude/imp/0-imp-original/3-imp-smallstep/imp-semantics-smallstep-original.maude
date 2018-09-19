@@ -7,9 +7,6 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
   op <_> : Pgm -> Configuration .
   op o_ : Configuration -> ExtendedConfiguration [prec 80] .   --- one step
   op *_ : Configuration -> ExtendedConfiguration [prec 80] .   --- all steps
-  op errorAr : -> AExp .
-  op errorBool : -> BExp .
-  op errorStmt : -> Stmt .
   var Cfg Cfg' : Configuration .
  crl * Cfg => * Cfg' if o Cfg => Cfg' .
 endm
@@ -18,36 +15,16 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
   var X : Id .  var Sigma Sigma' : State .  var I I1 I2 : Int .  var Xl : List{Id} .
   var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 : BExp .  var S S' S1 S1' S2 : Stmt .
 
- rl o < errorAr, Sigma > => < errorAr,  .State >
- rl o < errorBool, Sigma > => < errorBool,  .State >
- rl o < errorStmt, Sigma > => < errorStmt,  .State >
-
---- SmallStep-Lookup
  crl o < X,Sigma > => < Sigma(X),Sigma > if Sigma(X) =/=Bool undefined .
----crl o < X,Sigma > => < errorAr , Sigma > if Sigma(X) ==Bool errorAr .
----crl o < X,Sigma > => < errorBool , Sigma > if Sigma(X) ==Bool errorBool .
----crl o < X,Sigma > => < errorBool , Sigma > if Sigma(X) ==Bool errorStmt .
 
---- SmallStep-ADD
  crl o < A1 + A2,Sigma > => < A1' + A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
  crl o < A1 + A2,Sigma > => < A1 + A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
   rl o < I1 + I2,Sigma > => < I1 +Int I2,Sigma > .
 
---- SmallStep-DIV
  crl o < A1 / A2,Sigma > => < A1' / A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
  crl o < A1 / A2,Sigma > => < A1 / A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
  crl o < I1 / I2,Sigma > => < I1 /Int I2,Sigma > if I2 =/=Bool 0 .
 
- crl o < A1 / A2,Sigma > => < errorAr,Sigma > if o < A1,Sigma > => o < errorAr,Sigma > .
- crl o < A1 / A2,Sigma > => o < errorAr,Sigma > if A1 ==Bool errorAr .
-
---- crl o < A1 / A2,Sigma > => < errorAr,Sigma > if o < A2,Sigma > => o < errorAr,Sigma > .
---- crl o < A1 / A2,Sigma > => o < errorAr,Sigma > if A2 ==Bool errorAr .
-
- crl o < I1 / I2,Sigma > => o < errorAr,Sigma > if I2 ==Bool 0 .
-
-
----
  crl o < A1 <= A2,Sigma > => < A1' <= A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
  crl o < I1 <= A2,Sigma > => < I1 <= A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
   rl o < I1 <= I2,Sigma > => < I1 <=Int I2,Sigma > .

@@ -23,4 +23,40 @@ rew * < errorAr, x |-> 3 > .
 rew o < errorAr, .State > .
 rew * < errorAr, .State > .
 
+rew o < errorBool, x |-> 3 > .
+rew * < errorBool, x |-> 3 > .
+rew o < errorBool, .State > .
+rew * < errorBool, .State > .
+
+rew o < errorStmt, x |-> 3 > .
+rew * < errorStmt, x |-> 3 > .
+rew o < errorStmt, .State > .
+rew * < errorStmt, .State > .
+
+--- SmallStep-Lookup
+rew o < x, x |-> 3 > .
+--- rew o < x, x |-> errorAr > .
+
+--- SmallStep-ADD
+
+--- SmallStep-DIV
+rew o < 4 / 2 , .State > .
+rew o < 4 / 0 , .State > .
+rew o < 4 / 0 , x |-> 2 > .
+rew * < 4 / 0 , x |-> 2 > .
+rew * < errorAr, x |-> 3 > .
+rew o < ( 8 / 2 ) / ( 2 / 1 ) , .State > .
+rew * < ( 8 / 2 ) / ( 2 / 1 ) , .State > .
+rew o < errorAr / 1 , .State > .
+rew * < errorAr / 1 , .State > .
+rew o < 1 / errorAr , .State > .
+rew * < 1 / errorAr , .State > .
+
+rew o < ( 4 / 0 ) / 1 , .State > .
+
+--- rew o < ( 4 / 0 ) / 1 , .State > .
+--- rew o < 4 / (1 / 0 ) , .State > .
+--- rew o < ( 4 / 0 ) / 1 , .State > .
+--- rew * < ( 4 / 0 ) / 1 , .State > .
+
 q

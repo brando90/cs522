@@ -69,5 +69,39 @@ rew o < x + ( x / 0 ) , .State > .
 rew o < x + ( x / 0 ) , x |-> 3 > .
 rew * < x + ( x / 0 ) , x |-> 3 > .
 rew * < x + ( x / 0 ) , .State > .
+rew * < ( x / 0 ) + x , .State > .
+
+--- SmallStep-LEQ-ARG
+rew o < 1 <= 2 , .State > .
+rew * < 1 <= 2 , .State > .
+rew o < 1 / 0 <= 2 , .State > .
+rew o < 1 <= 2 / 0 , .State > .
+rew * < 1 / 0 <= 2 , .State > .
+rew * < 1 <= 2 / 0 , .State > .
+rew * < 1 <= ( 2 / 0 ) + 2 + ( 3 / 2 + 4 ) , .State > .
+rew * < x <= 2 / 0 , x |-> 3 > .
+rew o < x <= 2 / 0 , x |-> 3 > .
+
+--- SmallStep-Not-Arg
+rew o < ! true, .State > .
+rew o < ! false, .State > .
+rew * < ! false, .State > .
+rew * < ! true, .State > .
+rew * < ! 2 / 0 <= 3, .State > .
+rew * < ! 2 <= 3 / 0, .State > .
+rew o < ! 2 <= 3 / 0, .State > .
+
+--- SmallStep-AND
+rew o < true && true, .State > .
+rew o < false && true, .State > .
+rew o < true && false, .State > .
+rew o < false && false, .State > .
+rew o < 0 <= 0 / 0 && true, .State > .
+rew o < 0 <= 0 / 0 && false, .State > .
+rew o < false && 0 <= 0 / 0 , .State > .
+rew * < true && 0 <= 0 / 0 , .State > .
+rew o < true && 0 <= 0 / 0 , .State > .
+rew o < 0 <= 0 / 0,.State > .
+rew * < ( true && 0 <= 0 / 0 + 0 / 0 + 0 / 0 ) && true, .State > .
 
 q

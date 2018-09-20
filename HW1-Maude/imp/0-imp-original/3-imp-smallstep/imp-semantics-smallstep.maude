@@ -64,24 +64,36 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
  crl o < A1 / A2,Sigma > => < A1 / A2',Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' =/=Bool errorAr .
  crl o < A1 / A2,Sigma > => < errorAr,Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' ==Bool errorAr .
 
- crl o < I1 / I2,Sigma > => < I1 /Int I2,Sigma > if I2 =/=Bool 0 .
+ --- actually I don't think we need this, because variables without values shouldn't exist
+ --- crl o < A1 / A2,Sigma > => < errorAr,Sigma > if A2 ==Bool 0 . --- TODO do we need this?
 
- crl o < A1 / A2,Sigma > => < errorAr,Sigma > if A2 ==Bool 0 . --- TODO do we need this?
+ crl o < I1 / I2,Sigma > => < I1 /Int I2,Sigma > if I2 =/=Bool 0 .
  crl o < I1 / I2,Sigma > => < errorAr,Sigma > if I2 ==Bool 0 .
 
----
+--- SmallStep-LEQ-ARG
+ crl o < A1 <= A2,Sigma > => < A1' <= A2,Sigma > if o < A1,Sigma > => < A1',Sigma > /\ A1' =/=Bool errorAr .
+ crl o < A1 <= A2,Sigma > => < errorBool, Sigma > if o < A1,Sigma > => < A1',Sigma > /\ A1' ==Bool errorAr .
 
- crl o < A1 <= A2,Sigma > => < A1' <= A2,Sigma > if o < A1,Sigma > => < A1',Sigma > .
- crl o < I1 <= A2,Sigma > => < I1 <= A2',Sigma > if o < A2,Sigma > => < A2',Sigma > .
+ crl o < I1 <= A2,Sigma > => < I1 <= A2',Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' =/=Bool errorAr .
+ crl o < I1 <= A2,Sigma > => < errorBool, Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' ==Bool errorAr .
+ --- otherwise things like: rew * < x <= 2 / 0 , .State > . won't rewrite to errorBool, I understand why it would be weird cuz of small step since the first arg should already be evaluated...
+ ---crl o < A1 <= A2,Sigma > => < A1 <= A2',Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' =/=Bool errorAr .
+ ---crl o < A1 <= A2,Sigma > => < errorBool, Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' ==Bool errorAr .
   rl o < I1 <= I2,Sigma > => < I1 <=Int I2,Sigma > .
 
- crl o < ! B,Sigma > => < ! B',Sigma > if o < B,Sigma > => < B',Sigma > .
+--- SmallStep-Not-Arg
+ crl o < ! B,Sigma > => < ! B',Sigma > if o < B,Sigma > => < B',Sigma > /\ B' =/=Bool errorBool .
+ crl o < ! B,Sigma > => < errorBool ,Sigma > if o < B,Sigma > => < B',Sigma > /\ B' ==Bool errorBool .
+
   rl o < ! true,Sigma > => < false,Sigma > .
   rl o < ! false,Sigma > => < true,Sigma > .
 
- crl o < B1 && B2,Sigma > => < B1' && B2,Sigma > if o < B1,Sigma > => < B1',Sigma > .
+--- SmallStep-AND
+ crl o < B1 && B2,Sigma > => < B1' && B2,Sigma > if o < B1,Sigma > => < B1',Sigma > /\ B1' =/=Bool errorBool .
+ crl o < B1 && B2,Sigma > => < errorBool,Sigma > if o < B1,Sigma > => < B1',Sigma > /\ B1' ==Bool errorBool .
   rl o < false && B2,Sigma > => < false,Sigma > .
   rl o < true && B2,Sigma > => < B2,Sigma > .
+
 
   rl o < {S},Sigma > => < S,Sigma > .
 

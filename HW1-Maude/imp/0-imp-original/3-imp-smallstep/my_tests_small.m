@@ -138,6 +138,16 @@ rew o < { x = 1 ; } { x = 2 ; }  , x |-> 0 > .
 rew o < x = 1 ; { x = 2 ; }  , x |-> 0 > .
 rew * < {} errorStmt, .State > .
 
---- 
+--- SmallStep-IF
+rew * < if ( 1 / 0 <= 3 ) {} else {}, .State > .
+rew * < if ( 1 / 0 <= 3 ) { x = 1 ; } else { x = 2 ; }, x |-> 0 > .
+rew * < if ( true ) { x = 1 / 0 ; } else { x = 2 ; }, x |-> 0 > .
+rew * < if ( false ) { x = 1 ; } else { x = 1 / 0 ; }, x |-> 0 > .
+rew * < if ( 1 / 0 <= 3 ) { x = 1 / 0 ; } else { x = 2 / 0 ; }, x |-> 0 > .
+
+--- SmallStep-While
+rew * < while (x <= 2) {x = x + 1 ; }, x |-> 0 > .
+rew * < while (x <= 2) {x = x / 0 ; }, x |-> 0 > .
+rew * < while (x <= 2 / 0) {x = x + 1 ; }, x |-> 0 > .
 
 q

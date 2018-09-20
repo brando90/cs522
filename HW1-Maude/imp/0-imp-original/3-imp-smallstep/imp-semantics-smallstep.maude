@@ -27,6 +27,7 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < S, Sigma > /\ S =/=Bool errorStmt .
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < S, Sigma > /\ Sigma =/=Bool .State .
 
+ --- TODO it would be nice to get this to work to make it cleaner?
  ---crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < S, Sigma > /\ Sigma =/=Bool .State .
  ---crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg ==Bool P .
 endm
@@ -129,6 +130,5 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
   --- rl o < int Xl ; S > => < S,(Xl |-> 0) > .
   --- really ugly but it works...
   rl * < int Xl ; S > => * < S,(Xl |-> 0) > .
-
 
 endm

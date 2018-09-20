@@ -12,12 +12,15 @@ mod STATE is including PL-INT + PL-ID .
 
   eq X |-> undefined = .State .                 --- "undefine" a variable in a state
 
+  --- lookup
   eq (Sigma & X |-> I)(X) = I .
   eq Sigma(X) = undefined [owise] .
 
+  --- update
   eq (Sigma &  X |-> I)[I' / X ] = (Sigma & X |-> I') .
   eq Sigma[I / X] = (Sigma & X |-> I) [owise] .
 
+  --- idk TODO
   eq (X,X',Xl) |-> I = X |-> I & X' |-> I & Xl |-> I .
   eq .List{Id} |-> I = .State .
 endm

@@ -79,8 +79,8 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
 
 --- BigStep-SEQ
  crl < S1 S2,Sigma > => < Sigma2 > if < S1,Sigma > => < Sigma1 > /\ < S2,Sigma1 > => < Sigma2 > .
- crl < S1 S2,Sigma > => < Sigma2 > if < S1,Sigma > => < Error > .
- crl < S1 S2,Sigma > => < Sigma2 > if < S2,Sigma > => < Error > .
+ crl < S1 S2,Sigma > => < Error > if < S1,Sigma > => < Error > .
+ crl < S1 S2,Sigma > => < Error > if < S2,Sigma > => < Error > .
 
 --- BigStep-IF-True
  crl < if (B) S1 else S2,Sigma > => < Sigma1 > if < B,Sigma > => < true > /\ < S1,Sigma > => < Sigma1 > .
@@ -102,6 +102,7 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
  crl < while (B) S,Sigma > => < Error > if < B,Sigma > => < true > /\ Sigma ==Bool Error .
 
 --- BigStep-PGM
+ --- crl < int Xl ; S > => < Sigma > if < S,(Xl |-> 0) > => < Sigma > .
  crl < int Xl ; S > => < Sigma > if < S,(Xl |-> 0) > => < Sigma > .
  crl < int Xl ; S > => < Error > if < S,(Xl |-> 0) > => < Error > .
 

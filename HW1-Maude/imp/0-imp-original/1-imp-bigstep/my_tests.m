@@ -145,5 +145,10 @@ rew < while (false) { x = 96 ; }, Error > .
 
 --- BigStep-While-True Tests
 rew < while (x <= 3) {x = x + 1 ; } , x |-> 0 > .
+rew < { while (x <= 3) {x = x + 1 ; } } { x = x / 0 ; }, x |-> 0 > .
+
+--- BigStep-PGM
+rew < int a ; {} > .
+rew < int a , b , c ; { a = a / 0 ; } > .
 
 q

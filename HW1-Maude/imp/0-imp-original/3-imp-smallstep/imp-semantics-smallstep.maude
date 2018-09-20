@@ -94,20 +94,31 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
   rl o < false && B2,Sigma > => < false,Sigma > .
   rl o < true && B2,Sigma > => < B2,Sigma > .
 
-
+--- SmallStep-block
   rl o < {S},Sigma > => < S,Sigma > .
 
- crl o < X = A ;,Sigma > => < X = A' ;,Sigma > if o < A,Sigma > => < A',Sigma > .
+--- SmallStep-Assign
+ crl o < X = A ;,Sigma > => < X = A' ;,Sigma > if o < A,Sigma > => < A',Sigma > /\ A' =/=Bool errorAr .
+ crl o < X = A ;,Sigma > => < errorStmt,Sigma > if o < A,Sigma > => < errorAr, Sigma > .
+ crl o < X = A ;,Sigma > => < errorStmt,Sigma > if o < A,Sigma > => < errorAr, Sigma' > .
+ ---crl o < X = A ;,Sigma > => < errorAr,Sigma > if  A ==Bool errorAr .
+ ---crl o < X = I ;,Sigma > => < errorAr,Sigma > if o < I,Sigma > => < errorAr, Sigma > .
  crl o < X = I ;,Sigma > => < {},Sigma[I / X] > if Sigma(X) =/=Bool undefined .
 
- crl o < S1 S2,Sigma > => < S1' S2,Sigma' > if o < S1,Sigma > => < S1',Sigma' > .
+--- SmallStep-SEQ
+ crl o < S1 S2,Sigma > => < S1' S2,Sigma' > if o < S1,Sigma > => < S1',Sigma' > /\ S1' =/=Bool errorStmt .
+ crl o < S1 S2,Sigma > => < errorStmt, Sigma' > if o < S1,Sigma > => < errorStmt,Sigma' > .
+ crl o < S1 S2,Sigma > => < errorStmt, Sigma > if o < S1,Sigma > => < errorStmt,Sigma > .
   rl o < {} S2,Sigma > => < S2,Sigma > .
 
+--- SmallStep-IF
  crl o < if (B) S1 else S2,Sigma > => < if (B') S1 else S2,Sigma >
   if o < B,Sigma > => < B',Sigma  > .
   rl o < if (true) S1 else S2,Sigma > => < S1,Sigma > .
   rl o < if (false) S1 else S2,Sigma > => < S2,Sigma > .
 
+
+--- 
   rl o < while (B) S,Sigma > => < if (B) {S while (B) S} else {},Sigma > .
 
   rl o < int Xl ; S > => < S,(Xl |-> 0) > .

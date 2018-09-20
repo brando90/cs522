@@ -104,4 +104,40 @@ rew o < true && 0 <= 0 / 0 , .State > .
 rew o < 0 <= 0 / 0,.State > .
 rew * < ( true && 0 <= 0 / 0 + 0 / 0 + 0 / 0 ) && true, .State > .
 
+--- SmallStep-Block
+rew o < {errorStmt}, x |-> 3 > .
+rew * < {errorStmt}, x |-> 3 > .
+rew o < errorStmt, x |-> 3 > .
+rew o < errorStmt, .State > .
+rew o < {{{errorStmt}}}, x |-> 3 > .
+rew * < {{{errorStmt}}}, x |-> 3 > .
+rew o < { x =  2 ; } , x |-> 0 > .
+
+--- SmallSteo-Assign
+rew o < x =  2 ; , x |-> 0 > .
+rew * < x =  2 ; , x |-> 0 > .
+rew o < x =  2 / 0 ; , x |-> 0 > .
+rew * < x =  2 / 0 ; , x |-> 0 > .
+rew o < x =  errorAr ; , x |-> 0 > .
+rew * < x =  x / 0 + x + x + ( 6 / 2 ) ; , x |-> 0 > .
+rew o < x =  x / 0 ; , x |-> 0 > .
+rew * < x =  x / 0 ; , x |-> 0 > .
+
+--- SmallStep-SEQ
+rew * < {{}} {{}} , .State > .
+rew * < { x = 1 ; } { x = 2 ; }  , x |-> 0 > .
+--- rew * < { { x =  1 ; } } { {} }, x |-> 0 > .
+---rew * < x ; {} > .
+---rew * < { { x =  1 ; } } { {} }, x |-> 0 y |-> 0 > .
+--- rew * < { x =  1 ; } { y = 2 ; }, ( x |-> 0 y |-> 0 ) > .
+--- rew * < { int n , m ; , .State } > .
+rew * < { x = 1 / 0 ; } { x = 2 ; }  , x |-> 0 > .
+rew * < { x = 1 ; } { x = 2 / 0 ; }  , x |-> 0 > .
+rew * < { x = 1 ; } {{ x = 2 / 0 ; }}  , x |-> 0 > .
+rew o < { x = 1 ; } { x = 2 ; }  , x |-> 0 > .
+rew o < x = 1 ; { x = 2 ; }  , x |-> 0 > .
+rew * < {} errorStmt, .State > .
+
+--- 
+
 q

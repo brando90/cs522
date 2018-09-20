@@ -15,6 +15,7 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
   var Cfg Cfg' : Configuration .
   var Sigma : State .
   var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 : BExp .  var S S' S1 S1' S2 : Stmt .
+  var P : Pgm .
  --- crl * Cfg => * Cfg' if o Cfg => Cfg' .
  --- in words, recurse only if your not in an error already (i.e. State != .State OR A != Error)
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < A, Sigma > /\ A =/=Bool errorAr .
@@ -25,6 +26,9 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
 
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < S, Sigma > /\ S =/=Bool errorStmt .
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < S, Sigma > /\ Sigma =/=Bool .State .
+
+ ---crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < S, Sigma > /\ Sigma =/=Bool .State .
+ ---crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg ==Bool P .
 endm
 
 mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
@@ -122,5 +126,9 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
 
 --- SmalStep-PGM
   rl o < int Xl ; S > => < S,(Xl |-> 0) > .
+  --- rl o < int Xl ; S > => < S,(Xl |-> 0) > .
+  --- really ugly but it works...
+  rl * < int Xl ; S > => * < S,(Xl |-> 0) > .
+
 
 endm

@@ -8,6 +8,10 @@ mod PEANO-NAT is
   eq plus(succ(N), M) = succ(plus(N, M)) .
 endm
 
-reduce plus(zero,zero) .
-reduce succ(zero) .
+---red plus(zero,zero) .
+---red succ(zero) .
+----red plus(zero,zero) .
+red plus(succ(zero),zero) .
+red succ^4(zero) .
+---red plus(succ(zero),succ(zero)) .
 q

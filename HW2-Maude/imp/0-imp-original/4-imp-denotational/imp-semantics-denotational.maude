@@ -2,7 +2,7 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   sort Syntax .
   subsorts AExp BExp Stmt Pgm < Syntax .
   subsorts Int Bool State < CPO .
-  subsorts Error < CPO .
+  ---subsorts Error < CPO .
 
   op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
   ---op error : -> Error .
@@ -29,14 +29,16 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
     ifCPO( appCPO([[A2]],sigma) ==Bool sigma, sigma,
     appCPO([[A1]],sigma) /Int appCPO([[A2]],sigma) ) ) ) .
 
----
-
+--- Boolean
   eq [[T]] = funCPO sigma -> T .
 
-  eq [[A1 <= A2]] = funCPO sigma -> appCPO([[A1]],sigma) <=Int appCPO([[A2]],sigma) .
+  eq [[A1 <= A2]] = funCPO sigma -> ifCPO( appCPO([[A1]],sigma) ==Bool sigma, sigma,
+    ifCPO( appCPO([[A2]],sigma) ==Bool sigma, sigma,
+    appCPO([[A1]],sigma) <=Int appCPO([[A2]],sigma) ) ) .
 
-  eq [[! B]] = funCPO sigma -> notBool appCPO([[B]],sigma) .
+  eq [[! B]] = funCPO sigma -> ifCPO( appCPO([[B]],sigma) ==Bool sigma, sigma, notBool appCPO([[B]],sigma) ) .
 
+  eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma),appCPO([[B2]],sigma),false) .
   eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma),appCPO([[B2]],sigma),false) .
 
   eq [[{}]] = funCPO sigma -> sigma .

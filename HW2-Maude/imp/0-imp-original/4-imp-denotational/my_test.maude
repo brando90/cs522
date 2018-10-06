@@ -47,4 +47,8 @@ red appCPO( [[ true && 1 / 0  <= 2 ]], x |-> 2 ) .
 red appCPO( [[ false  && 1 / 0  <= 2 ]], x |-> 2 ) .
 red appCPO( [[ 1 / 0  <= 2  && 1 / 0  <= 2 ]], x |-> 2 ) .
 
+--- Statements
+red appCPO( [[ y = 3 ; ]], x |-> 2 ) .
+red appCPO( [[ x = 3 / 0 ; ]], x |-> 2 ) .
+
 q

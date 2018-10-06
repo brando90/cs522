@@ -39,7 +39,6 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   eq [[! B]] = funCPO sigma -> ifCPO( appCPO([[B]],sigma) ==Bool sigma, sigma, notBool appCPO([[B]],sigma) ) .
 
   --- the second argument is executed or evaluated only if the first argument does not suffice to determine the value of the expression
-  ---eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma),appCPO([[B2]],sigma),false) .
   eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma) ==Bool sigma, sigma, ifCPO(appCPO([[B1]],sigma), ifCPO(appCPO([[B2]],sigma) ==Bool sigma, sigma, appCPO([[B2]],sigma)) ,false) ) .
 
 --- Statements
@@ -47,11 +46,12 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
 
   eq [[{S}]] = funCPO sigma -> appCPO([[S]],sigma) .
 
+  --- assignment sigma[arg / X]
   eq [[X = A ;]]
    = funCPO sigma
-     -> appCPO(funCPO arg
+     -> ifCPO( appCPO([[A]],sigma) ==Bool sigma, sigma, appCPO(funCPO arg
                -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined, sigma[arg / X], undefined),
-               appCPO([[A]],sigma)) .
+               appCPO([[A]],sigma)) ) .
 
   eq [[S1 S2]] = funCPO sigma -> appCPO([[S2]],appCPO([[S1]],sigma)) .
 

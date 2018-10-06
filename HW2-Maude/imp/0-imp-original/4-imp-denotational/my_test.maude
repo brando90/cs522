@@ -8,17 +8,18 @@ in ../imp-programs.maude
 
 mod TEST is including IMP-SEMANTICS-DENOTATIONAL + IMP-PROGRAMS .  endm
 
----reduce appCPO([[ 1 ]] , ( x |-> 2) ) .
----red appCPO( [[ x / y ]], x |-> 2 & y |-> 1 ) .
----red appCPO( [[ x / y ]], x |-> 2 & y |-> 0 ) .
----red appCPO( [[{}]], x |-> 0 ) .
----red appCPO( [[ x / x + x / x ]], x |-> 2 & y |-> 0 ) .
----red appCPO( [[ x / y  ]], x |-> 2 & y |-> 0 ) .
----red appCPO( [[ 1 / 0  ]], .State ) .
----red appCPO( [[ 1 / 0 + 1 ]], .State ) .
----red appCPO( [[ 1 / 0 + 0 ]], x |-> 2 ) .
----red appCPO( [[ error ]], x |-> 2 ) .
+
+---- Arithmetic
 red appCPO( [[ 1 / 0 ]], x |-> 2 ) .
 red appCPO( [[ 1 / 0 + 0 ]], x |-> 2 ) .
+red appCPO( [[ 1  + 1 / 0 ]], x |-> 2 ) .
+red appCPO( [[ 1 / 0 + 1 / 0 ]], x |-> 2 ) .
+
+red appCPO( [[ 1 / 0 ]], x |-> 2 ) .
+red appCPO( [[ ( 1 / 0 ) / 1 ]], x |-> 2 ) .
+red appCPO( [[ 1 / ( 1 / 0 ) ]], x |-> 2 ) .
+red appCPO( [[ ( 1 / 0 ) / ( 1 / 0 ) ]], x |-> 2 ) .
+red appCPO( [[ 1 + 2 + 3 + ( 1 + 1 / 0 + 1) / ( 1 / 0 ) + 1 ]], x |-> 2 ) .
+red appCPO( [[ 1 + 2 + 3 + ( 1 + 1 / 1 + 1) / ( 1 / 1 ) + 1 ]], x |-> 2 ) .
 
 q

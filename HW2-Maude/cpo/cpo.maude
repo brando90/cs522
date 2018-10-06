@@ -1,0 +1,47 @@
+in ../builtins
+
+mod FUNCTIONS is including PL-INT + CPO .
+  subsort Int < CPO .
+  ops factorial ackermann1 ackermann2 : -> CPO .
+  eq factorial  = fixCPO(funCPO g -> funCPO n -> ifCPO(n ==Bool 0, 1, ifCPO(n >Int 0, n *Int appCPO(g, n -Int 1), undefined))) .
+--- add equations defining the ackermann functions here
+endm
+
+---set trace on .
+
+rewrite appCPO(factorial,-1) .
+rewrite appCPO(factorial,0) .
+rewrite appCPO(factorial,1) .
+rewrite appCPO(factorial,3) .
+rewrite appCPO(factorial,10) .
+rewrite appCPO(factorial,100) .
+
+rewrite appCPO(appCPO(ackermann1,0),0) .
+rewrite appCPO(appCPO(ackermann1,0),1) .
+rewrite appCPO(appCPO(ackermann1,1),0) .
+rewrite appCPO(appCPO(ackermann1,1),1) .
+rewrite appCPO(appCPO(ackermann1,1),2) .
+rewrite appCPO(appCPO(ackermann1,2),1) .
+rewrite appCPO(appCPO(ackermann1,2),2) .
+rewrite appCPO(appCPO(ackermann1,2),3) .
+rewrite appCPO(appCPO(ackermann1,3),2) .
+rewrite appCPO(appCPO(ackermann1,3),3) .
+---rewrite appCPO(appCPO(ackermann1,3),4) .  --- slow
+rewrite appCPO(appCPO(ackermann1,4),0) .
+---rewrite appCPO(appCPO(ackermann1,4),1) .  --- very very slow (I stopped it, takes too long)
+
+rewrite appCPO(ackermann2,pairCPO(0,0)) .
+rewrite appCPO(ackermann2,pairCPO(0,1)) .
+rewrite appCPO(ackermann2,pairCPO(1,0)) .
+rewrite appCPO(ackermann2,pairCPO(1,1)) .
+rewrite appCPO(ackermann2,pairCPO(1,2)) .
+rewrite appCPO(ackermann2,pairCPO(2,1)) .
+rewrite appCPO(ackermann2,pairCPO(2,2)) .
+rewrite appCPO(ackermann2,pairCPO(2,3)) .
+rewrite appCPO(ackermann2,pairCPO(3,2)) .
+rewrite appCPO(ackermann2,pairCPO(3,3)) .
+---rewrite appCPO(ackermann2,pairCPO(3,4)) .  --- slow
+rewrite appCPO(ackermann2,pairCPO(4,0)) .
+---rewrite appCPO(ackermann2,pairCPO(4,1)) .  --- very very slow (I stopped it, takes too long)
+
+q

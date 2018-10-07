@@ -27,6 +27,16 @@ red appCPO( [[ x <= 1 / 0 ]], x |-> 2 ) .
 red appCPO( [[ x / 0 <= 1 / 0 ]], x |-> 2 ) .
 
 ---- Statments
----red appCPO( [[ y = 3 ; ]], x |-> 2 ) .
+red appCPO( [[ y = 3 ; ]], x |-> 2 ) .
+red appCPO( [[err]], x |-> 3 ) .
+red appCPO( [[err]], x |-> 3 & err ) ==Bool undefined .
+red appCPO( [[ x = 3 / 0 ; ]], x |-> 2 ) .
+
+red appCPO( [[ x = 3 / 0 ; x = 10 ; ]], x |-> 2 ) .
+red appCPO( [[ x = 3 / 0 ; y = 10 ; ]], x |-> 2 ) .
+red appCPO( [[ y = 3 / 0 ; x = 10 ; ]], x |-> 2 ) .
+red appCPO( [[ y = 3 ; x = 10 ; ]], x |-> 2 ) .
+red appCPO( [[ x = 3 ; x = 4 ; x = 5 ; ]], x |-> 2 ) .
+red appCPO( [[ x = 3 ; x = 4 / 0 ; x = 100 ; ]], x |-> 2 ) .
 
 q

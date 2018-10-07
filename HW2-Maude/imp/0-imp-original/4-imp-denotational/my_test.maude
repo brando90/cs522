@@ -44,8 +44,16 @@ red appCPO( [[ if ( 1 <= 0 ) { x = 3 ; } else { x = 4 / 0 ; } ]], x |-> 2 ) .
 red appCPO( [[ { x = 3 / 0 ; } ]], x |-> 2 ) .
 
 --- While Loop
-red appCPO( [[while (false) {} ]], x |-> 0 ) .
-red appCPO( [[while ( 0 <= 0 / 0 ) {} ]], x |-> 0 ) .
-red appCPO( [[while (x <= 5) { x = x + 1 ; } ]], x |-> 0 ) .
+---red appCPO( [[while (false) {} ]], x |-> 0 ) .
+---red appCPO( [[while ( 0 <= 0 / 0 ) {} ]], x |-> 0 ) .
+---red appCPO( [[while (x <= 5) { x = x + 1 ; } ]], x |-> 0 ) .
+---red appCPO( [[while (x <= 5) { x = x + 1 ; x = 1 / 0 ; } ]], x |-> 0, err |-> 1 ) .
+---red appCPO( [[while (true) { x = 1 / 0 ; } ]], x |-> 0 ) .
+red _`(_`)( x |-> 3 & err |-> 1, err) .
+---red ( x |-> 3 & err |-> 1 )(err) .
+red appCPO( [[ x = 1 / 0 ; ]], x |-> 0 ) .
+red _`(_`)( appCPO( [[ x = 1 / 0 ; ]], x |-> 0 ), err) .
+red appCPO( [[while (true) { x = 1 / 0 ; } ]], x |-> 0 & err |-> 1) .
+red appCPO( [[while (true) { x = x + 1 ; x = 1 / 0 ; } ]], x |-> 0 & err |-> 1) .
 
 q

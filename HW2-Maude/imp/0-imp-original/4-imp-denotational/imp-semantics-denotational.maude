@@ -71,7 +71,7 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   eq [[while (B) S]]
    = fixCPO(funCPO alpha
             -> funCPO sigma
-               ->  ifCPO( _`(_`)( appCPO([[S]],sigma) ,err) ==Bool undefined, appCPO(alpha,appCPO([[S]],sigma)), appCPO([[S]],sigma) ) ) .
+               ->  ifCPO( appCPO([[B]],sigma), ifCPO( _`(_`)( appCPO([[S]],sigma) ,err) ==Bool undefined, appCPO(alpha,appCPO([[S]],sigma)), appCPO([[S]],sigma) ), sigma ) ) .
 
   eq [[(int Xl ; S)]] = appCPO([[S]],(Xl |-> 0)) .
 endm

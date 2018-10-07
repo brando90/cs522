@@ -2,16 +2,21 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   sort Syntax .
   subsorts AExp BExp Stmt Pgm < Syntax .
   subsorts Int Bool State < CPO .
-  ---subsorts Error < CPO .
+  ---subsorts Error < State .
 
   op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
-  ---op error : -> Error .
+  op Error : -> State .
+  ---op <_,_> : Syntax Syntax -> CPO .
 
   var X : Id . var Xl : List{Id} .  var I : Int .  var A1 A2 A : AExp .
   var T : Bool .  var B1 B2 B : BExp .  var S1 S2 S : Stmt .
+  ---var A B : Int .
   ---var err : Error .
   ---var Sigma Sigma' Sigma1 Sigma2 : State .
   ops sigma alpha arg : -> CPOVar .
+
+---eq <A,B> = funCPO sigma -> ifCPO(sigma ==Bool 0, A, B) .
+---eq [[A,B]] = funCPO sigma -> ifCPO(sigma ==Bool 0, A, B) .
 
 --- Arithmetic expressions
   eq [[I]] = funCPO sigma -> I .
@@ -19,27 +24,27 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   eq [[X]] = funCPO sigma -> _`(_`)(sigma,X) .
 
   --- addition
-  eq [[A1 + A2]] = funCPO sigma -> ifCPO( appCPO([[A1]],sigma) ==Bool sigma, sigma,
-    ifCPO( appCPO([[A2]],sigma) ==Bool sigma, sigma,
+  eq [[A1 + A2]] = funCPO sigma -> ifCPO( appCPO([[A1]],sigma) ==Bool Error, Error,
+    ifCPO( appCPO([[A2]],sigma) ==Bool Error, Error,
     appCPO([[A1]],sigma) +Int appCPO([[A2]],sigma) ) ) .
 
   --- division
-  eq [[A1 / A2]] = funCPO sigma -> ifCPO( appCPO([[A2]],sigma) ==Bool 0, sigma,
-    ifCPO( appCPO([[A1]],sigma) ==Bool sigma, sigma,
-    ifCPO( appCPO([[A2]],sigma) ==Bool sigma, sigma,
+  eq [[A1 / A2]] = funCPO sigma -> ifCPO( appCPO([[A2]],sigma) ==Bool 0, Error,
+    ifCPO( appCPO([[A1]],sigma) ==Bool Error, Error,
+    ifCPO( appCPO([[A2]],sigma) ==Bool Error, Error,
     appCPO([[A1]],sigma) /Int appCPO([[A2]],sigma) ) ) ) .
 
 --- Boolean
   eq [[T]] = funCPO sigma -> T .
 
-  eq [[A1 <= A2]] = funCPO sigma -> ifCPO( appCPO([[A1]],sigma) ==Bool sigma, sigma,
-    ifCPO( appCPO([[A2]],sigma) ==Bool sigma, sigma,
+  eq [[A1 <= A2]] = funCPO sigma -> ifCPO( appCPO([[A1]],sigma) ==Bool Error, Error,
+    ifCPO( appCPO([[A2]],sigma) ==Bool Error, Error,
     appCPO([[A1]],sigma) <=Int appCPO([[A2]],sigma) ) ) .
 
-  eq [[! B]] = funCPO sigma -> ifCPO( appCPO([[B]],sigma) ==Bool sigma, sigma, notBool appCPO([[B]],sigma) ) .
+  eq [[! B]] = funCPO sigma -> ifCPO( appCPO([[B]],sigma) ==Bool Error, Error, notBool appCPO([[B]],sigma) ) .
 
   --- the second argument is executed or evaluated only if the first argument does not suffice to determine the value of the expression
-  eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma) ==Bool sigma, sigma, ifCPO(appCPO([[B1]],sigma), ifCPO(appCPO([[B2]],sigma) ==Bool sigma, sigma, appCPO([[B2]],sigma)) ,false) ) .
+  eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma) ==Bool Error, Error, ifCPO(appCPO([[B1]],sigma), ifCPO(appCPO([[B2]],sigma) ==Bool Error, Error, appCPO([[B2]],sigma)) ,false) ) .
 
 --- Statements
   eq [[{}]] = funCPO sigma -> sigma .

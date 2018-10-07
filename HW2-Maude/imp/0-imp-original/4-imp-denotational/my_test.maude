@@ -53,5 +53,7 @@ red appCPO( [[while (true) { x = 1 / 0 ; } ]], x |-> 0 ) .
 red appCPO( [[while (true) { x = x + 1 ; x = 1 / 0 ; } ]], x |-> 0) .
 red appCPO( [[while (true) { x = 1 / 0 ; x = x + 1 ; } ]], x |-> 0) .
 red appCPO( [[while (false) { x = 100 ; } ]], x |-> 0) .
+red appCPO( [[while ( 0 / 0 <= 1) { x = 100 ; } ]], x |-> 0) .
+
 
 q

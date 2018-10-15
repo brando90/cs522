@@ -1,0 +1,127 @@
+mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + BUFFER + CPO .
+  sort Syntax .
+  subsorts AExp BExp Stmt Pgm < Syntax .
+  subsorts Int Bool State < CPO .
+
+*** <new> Add Buffer to CPO (Buffer now "officially" becomes a mathematical domain)
+  subsort Buffer < CPO .
+*** </new>
+
+  op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
+
+  var X : Id . var Xl : List{Id} .  var I : Int .  var A1 A2 A : AExp .
+  var T : Bool .  var B1 B2 B : BExp .  var S1 S2 S : Stmt .
+  ops pi alpha arg arg1 arg2 arg3 omega : -> CPOVar .
+
+*** <new> All equations defining denotational semantics of expressions
+*** need to change to account for the fact the new mathematical domain,
+*** namely functions from pairs (state,input) to (value,input)
+  eq [[I]] = funCPO pi -> pairCPO(I,2ndCPO(pi)) .
+
+  eq [[X]] = funCPO pi -> pairCPO(_`(_`)(1stCPO(pi),X),2ndCPO(pi)) .
+
+  eq [[A1 + A2]]
+   = funCPO pi
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2
+                         -> pairCPO(1stCPO(arg1) +Int 1stCPO(arg2), 2ndCPO(arg2)),
+                         appCPO([[A2]],pairCPO(1stCPO(pi),2ndCPO(arg1)))),
+               appCPO([[A1]],pi)) .
+
+  eq [[A1 / A2]]
+   = funCPO pi
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2
+                         -> ifCPO(1stCPO(arg2) =/=Bool 0,
+                                  pairCPO(1stCPO(arg1) /Int 1stCPO(arg2), 2ndCPO(arg2)),
+                                  undefined),
+                         appCPO([[A2]],pairCPO(1stCPO(pi),2ndCPO(arg1)))),
+               appCPO([[A1]],pi)) .
+
+  eq [[T]] = funCPO pi -> pairCPO(T,2ndCPO(pi)) .
+
+  eq [[A1 <= A2]]
+   = funCPO pi
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2
+                         -> pairCPO(1stCPO(arg1) <=Int 1stCPO(arg2), 2ndCPO(arg2)),
+                         appCPO([[A2]],pairCPO(1stCPO(pi),2ndCPO(arg1)))),
+               appCPO([[A1]],pi)) .
+
+  eq [[! B]]
+   = funCPO pi
+     -> appCPO(funCPO arg
+               -> pairCPO(notBool 1stCPO(arg), 2ndCPO(arg)),
+               appCPO([[B]],pi)) .
+
+  eq [[B1 && B2]]
+   = funCPO pi
+     -> appCPO(funCPO arg1
+               -> ifCPO(1stCPO(arg1),
+                        appCPO([[B2]],pairCPO(1stCPO(pi),2ndCPO(arg1))),
+                        arg1),
+               appCPO([[B1]],pi)) .
+*** </new>
+
+*** <new> All equations defining the denotational semantics of statements
+*** need to change to account for the new mathematical domain, namely
+*** functions from pairs (state,input) to pairs (state,input,output).
+  eq [[{}]] = funCPO pi -> tripleCPO(1stCPO(pi),2ndCPO(pi),epsilon) .
+
+  eq [[{S}]] = funCPO pi -> appCPO([[S]],pi) .
+
+  eq [[X = A ;]]
+   = funCPO pi
+     -> appCPO(funCPO arg
+               -> ifCPO(_`(_`)(1stCPO(pi),X) =/=Bool undefined,
+                        tripleCPO(1stCPO(pi)[1stCPO(arg) / X],2ndCPO(arg),epsilon),
+                        undefined),
+               appCPO([[A]],pi)) .
+
+  eq [[S1 S2]]
+   = funCPO pi
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2
+                         -> tripleCPO(1stCPO(arg2),2ndCPO(arg2),3rdCPO(arg1) : 3rdCPO(arg2)),
+                         appCPO([[S2]],pairCPO(1stCPO(arg1),2ndCPO(arg1)))),
+               appCPO([[S1]],pi)) .
+
+  eq [[if (B) S1 else S2]]
+   = funCPO pi
+     -> appCPO(funCPO arg
+               -> ifCPO(1stCPO(arg),
+                        appCPO([[S1]],pairCPO(1stCPO(pi),2ndCPO(arg))),
+                        appCPO([[S2]],pairCPO(1stCPO(pi),2ndCPO(arg)))),
+               appCPO([[B]],pi)) .
+
+  eq [[while (B) S]]
+   = fixCPO(funCPO alpha
+            -> funCPO pi
+               -> appCPO(funCPO arg1
+                         -> ifCPO(1stCPO(arg1),
+                                  appCPO(funCPO arg2
+                                         -> appCPO(funCPO arg3
+                                                   -> tripleCPO(1stCPO(arg3),
+                                                                2ndCPO(arg3),
+                                                                3rdCPO(arg2) : 3rdCPO(arg3)),
+                                                   appCPO(alpha,pairCPO(1stCPO(arg2),2ndCPO(arg2)))),
+                                         appCPO([[S]],pairCPO(1stCPO(pi),2ndCPO(arg1)))),
+                                  tripleCPO(1stCPO(pi),2ndCPO(arg1),epsilon)),
+                         appCPO([[B]],pi))) .
+*** </new>
+
+*** <new> The denotational semantics of statements now takes an input buffer
+  eq [[(int Xl ; S)]] = funCPO omega
+                        -> appCPO([[S]],pairCPO((Xl |-> 0),omega)) .
+*** </new>
+
+*** <new> The actual denotational semantics of input/output
+  eq [[read()]] = funCPO pi -> pairCPO(head(2ndCPO(pi)),tail(2ndCPO(pi))) .
+
+  eq [[print(A);]]
+   = funCPO pi
+     -> appCPO(funCPO arg
+               -> tripleCPO(1stCPO(pi),2ndCPO(arg),1stCPO(arg)),
+               appCPO([[A]],pi)) .
+***</new>
+endm

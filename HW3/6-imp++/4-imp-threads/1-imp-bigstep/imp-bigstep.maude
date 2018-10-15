@@ -1,0 +1,27 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+in imp-semantics-bigstep
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-BIGSTEP + IMP-PROGRAMS .  endm
+
+rewrite < sumPgm > .
+rewrite < collatzStmt, n |-> 10 & (q,r,s) |-> 0 > .
+rewrite < collatzPgm > .
+rewrite < multiplicationStmt, x |-> 25 & y |-> 5 & (q,r,z) |-> 0 > .
+rewrite < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 > .
+rewrite < countPrimesPgm > .
+
+search  < sumPgm > =>! Cfg:Configuration .
+
+*** <new> Execute the new programs
+rewrite < sumSpawnPgm > .
+search  < sumSpawnPgm > =>! Cfg:Configuration .  --- Could be slow. For n=10, there are 13 states and s can be any of 55,56,...,66.
+rewrite < spawnPgm > .
+search  < spawnPgm > =>! Cfg:Configuration .     --- Only one bahavior cought, when x = 111 at the end.
+*** </new>
+
+quit

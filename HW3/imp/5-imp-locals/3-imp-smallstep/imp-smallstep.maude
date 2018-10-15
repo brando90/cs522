@@ -1,0 +1,28 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+in imp-semantics-smallstep
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-SMALLSTEP + IMP-PROGRAMS .  endm
+
+rewrite * < sumPgm, s |-> 0 > .
+rewrite * < collatzStmt, n |-> 10 & (q,r,s) |-> 0 > .
+rewrite * < collatzPgm, s |-> 0 > .
+rewrite * < multiplicationStmt, x |-> 25 & y |-> 5 & z |-> 0 > .
+rewrite * < primalityStmt, n |-> 1021 & t |-> 0 > .
+rewrite * < countPrimesPgm, s |-> 0 > .
+
+*** <new>
+rewrite * < int s ; sumPgm > .
+search  * < int s ; sumPgm > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < shadow1Stmt, (y,z) |-> 0 > .
+search  * < shadow1Stmt, (y,z) |-> 0 > =>! Cfg:ExtendedConfiguration .
+rewrite * < shadow2Stmt, (y,z) |-> 0 > .
+search  * < shadow2Stmt, (y,z) |-> 0 > =>! Cfg:ExtendedConfiguration .
+*** </new>
+
+quit

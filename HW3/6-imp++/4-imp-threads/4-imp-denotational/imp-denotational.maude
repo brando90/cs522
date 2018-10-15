@@ -1,0 +1,23 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+in imp-semantics-denotational
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-DENOTATIONAL + IMP-PROGRAMS .  endm
+
+rewrite [[sumPgm]] .
+rewrite appCPO([[collatzStmt]], n |-> 10 & (q,r,s) |-> 0 ) .
+rewrite [[collatzPgm]] .
+rewrite appCPO([[multiplicationStmt]] , x |-> 25 & y |-> 5 & (q,r,z) |-> 0 ) .
+rewrite appCPO([[primalityStmt]], n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 ) .
+rewrite [[countPrimesPgm]] .
+
+*** <new> Execute the new programs
+rewrite [[ sumSpawnPgm ]] .
+rewrite [[ spawnPgm ]] .
+*** </new>
+
+quit

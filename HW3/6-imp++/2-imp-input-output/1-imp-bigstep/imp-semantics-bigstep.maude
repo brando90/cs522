@@ -1,0 +1,96 @@
+mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-SYNTAX + STATE .
+
+*** <new> Included the module BUFFER as well
+  including BUFFER .
+*** </new>
+
+*** <new> Add an input buffer to all configurations holding expressions
+  sort Configuration .
+  op <_,_,_> : AExp State Buffer -> Configuration .
+  op   <_,_> : Int Buffer -> Configuration .
+  op <_,_,_> : BExp State Buffer -> Configuration .
+  op   <_,_> : Bool Buffer -> Configuration .
+*** </new>
+
+*** <new> Add an input buffer to non-result configurations holding statements:
+  op <_,_,_> : Stmt State Buffer -> Configuration .
+*** </new>
+
+*** <new> Add both an input buffer and an output buffer to result state configuration:
+  op <_,_,_> : State Buffer Buffer -> Configuration .
+*** </new>
+
+*** <new> Add an input buffer to initial configurations:
+  op   <_,_> : Pgm Buffer -> Configuration .
+*** </new>
+*** One could also keep < Pgm > for programs without input, in addition to the
+*** above, but then one needs to give it semantics (e.g., < P > = < P,epsilon >).
+endm
+
+mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
+  var X : Id .  var Xl : List{Id} .  var Sigma Sigma' Sigma1 Sigma2 : State .  var T : Bool .
+  var I I1 I2 : Int .  var A A1 A2 : AExp .  var B B1 B2 : BExp .  var S S1 S2 : Stmt .
+
+*** <new> Add the input buffer to all the configurations below.  Also, new rules are added
+*** attempting to capture the non-deterministic evaluation strategy of + and /.
+  var OmegaIn OmegaIn' OmegaIn'' OmegaIn1 OmegaIn2 OmegaOut OmegaOut' OmegaOut1 OmegaOut2 : Buffer .
+  rl < I,Sigma,OmegaIn > => < I,OmegaIn > .
+ crl < X,Sigma,OmegaIn > => < Sigma(X),OmegaIn >
+  if Sigma(X) =/=Bool undefined .
+ crl < A1 + A2,Sigma,OmegaIn > => < I1 +Int I2,OmegaIn2 >
+  if < A1,Sigma,OmegaIn > => < I1,OmegaIn1 > /\ < A2,Sigma,OmegaIn1 > => < I2,OmegaIn2 > .
+*** <new-rule>
+  crl < A1 + A2,Sigma,OmegaIn > => < I1 +Int I2,OmegaIn1 >
+  if < A2,Sigma,OmegaIn > => < I2,OmegaIn2 > /\ < A1,Sigma,OmegaIn2 > => < I1,OmegaIn1 > .
+*** </new-rule>
+ crl < A1 / A2,Sigma,OmegaIn > => < I1 /Int I2,OmegaIn2 >
+  if < A1,Sigma,OmegaIn > => < I1,OmegaIn1 > /\ < A2,Sigma,OmegaIn1 > => < I2,OmegaIn2 > /\ I2 =/=Bool 0 .
+*** <new-rule>
+ crl < A1 / A2,Sigma,OmegaIn > => < I1 /Int I2,OmegaIn1 >
+  if < A2,Sigma,OmegaIn > => < I2,OmegaIn2 > /\ < A1,Sigma,OmegaIn2 > => < I1,OmegaIn1 > /\ I2 =/=Bool 0 .
+*** </new-rule>
+
+  rl < T,Sigma,OmegaIn > => < T,OmegaIn > .
+ crl < A1 <= A2,Sigma,OmegaIn > => < I1 <=Int I2,OmegaIn2 >
+  if < A1,Sigma,OmegaIn > => < I1,OmegaIn1 > /\ < A2,Sigma,OmegaIn1 > => < I2,OmegaIn2 > .
+ crl < ! B,Sigma,OmegaIn > => < false,OmegaIn' >
+  if < B,Sigma,OmegaIn > => <  true,OmegaIn' > .
+ crl < ! B,Sigma,OmegaIn > => <  true,OmegaIn' >
+  if < B,Sigma,OmegaIn > => < false,OmegaIn' > .
+ crl < B1 && B2,Sigma,OmegaIn > => < false,OmegaIn1 >
+  if < B1,Sigma,OmegaIn > => < false,OmegaIn1 > .
+ crl < B1 && B2,Sigma,OmegaIn > => < T,OmegaIn2 >
+  if < B1,Sigma,OmegaIn > => < true,OmegaIn1 > /\ < B2,Sigma,OmegaIn1 > => < T,OmegaIn2 > .
+*** </new>
+
+*** <new> Add the input or output buffers in all the state configurations below:
+  rl < {},Sigma,OmegaIn > => < Sigma,OmegaIn,epsilon > .
+ crl < {S},Sigma,OmegaIn > => < Sigma',OmegaIn',OmegaOut' >
+  if < S,Sigma,OmegaIn > => < Sigma',OmegaIn',OmegaOut' > .
+ crl < X = A ;,Sigma,OmegaIn > => < Sigma[I / X],OmegaIn',epsilon >
+  if < A,Sigma,OmegaIn > => < I,OmegaIn' > /\ Sigma(X) =/=Bool undefined .
+ crl < S1 S2,Sigma,OmegaIn > => < Sigma2,OmegaIn2,OmegaOut1 : OmegaOut2 > 
+  if < S1,Sigma,OmegaIn > => < Sigma1,OmegaIn1,OmegaOut1 > /\ < S2,Sigma1,OmegaIn1 > => < Sigma2,OmegaIn2,OmegaOut2 > .
+ crl < if (B) S1 else S2,Sigma,OmegaIn > => < Sigma1,OmegaIn1,OmegaOut1 >
+  if < B,Sigma,OmegaIn > => < true,OmegaIn'  > /\ < S1,Sigma,OmegaIn' > => < Sigma1,OmegaIn1,OmegaOut1 > .
+ crl < if (B) S1 else S2,Sigma,OmegaIn > => < Sigma2,OmegaIn2,OmegaOut2 > 
+  if < B,Sigma,OmegaIn > => < false,OmegaIn' > /\ < S2,Sigma,OmegaIn' > => < Sigma2,OmegaIn2,OmegaOut2 > .
+ crl < while (B) S,Sigma,OmegaIn > => < Sigma,OmegaIn',epsilon >
+  if < (B),Sigma,OmegaIn > => < false,OmegaIn' > .
+ crl < while (B) S,Sigma,OmegaIn > => < Sigma',OmegaIn'',OmegaOut > 
+  if < B,Sigma,OmegaIn > => < true,OmegaIn' > /\ < S while (B) S,Sigma,OmegaIn' > => < Sigma',OmegaIn'',OmegaOut > .
+*** </new>
+
+*** <new> Modify the rule for programs to initialize the state to one also including the input
+*** and to also report the remaining input and the entire output in the result configuration
+ crl < int Xl ; S,OmegaIn > => < Sigma,OmegaIn',OmegaOut >
+  if < S,(Xl |-> 0),OmegaIn > => < Sigma,OmegaIn',OmegaOut > .
+*** </new>
+
+*** <new> Add the actual big-step SOS of input/output
+  rl < read(),Sigma,I : OmegaIn > => < I,OmegaIn > .
+ crl < print(A);,Sigma,OmegaIn > => < Sigma,OmegaIn',I >
+  if < A,Sigma,OmegaIn > => < I,OmegaIn' > .
+*** </new>
+
+endm

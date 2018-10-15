@@ -1,0 +1,28 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+*** <new> Including the input/output buffer
+in ../buffer.maude
+*** </new>
+
+in imp-semantics-denotational
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-DENOTATIONAL + IMP-PROGRAMS .  endm
+
+rewrite appCPO([[sumPgm]], epsilon) .
+rewrite appCPO([[collatzStmt]], pairCPO((n |-> 10 & (q,r,s) |-> 0 ), epsilon)) .
+rewrite appCPO([[collatzPgm]], epsilon) .
+rewrite appCPO([[multiplicationStmt]], pairCPO((x |-> 25 & y |-> 5 & (q,r,z) |-> 0),epsilon)) .
+rewrite appCPO([[primalityStmt]], pairCPO((n |-> 1021 & (i,q,r,t,x,y,z) |-> 0),epsilon)) .
+rewrite appCPO([[countPrimesPgm]], epsilon) .
+
+*** <new> Execute the new programs
+rewrite appCPO([[sumIOPgm]], 100) .
+rewrite appCPO([[whileIOPgm]], 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10) .
+rewrite appCPO([[nondetIOStmt]], pairCPO(.State, 10 : 20 : 30)) .
+*** </new>
+
+quit

@@ -90,16 +90,17 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
   if < B,Sigma > => < false > /\ < S2,Sigma > => < Sigma2 > .
  crl < if (B) S1 else S2,Sigma > => < halting,Sigma2 >
   if < B,Sigma > => < false > /\ < S2,Sigma > => < halting,Sigma2 > .
-  
+
  crl < if (B) S1 else S2,Sigma > => < halting,Sigma >
   if < B,Sigma > => < error > .
 
  crl < while (B) S,Sigma > => < Sigma >
   if < B,Sigma > => < false > .
- crl < while (B) S,Sigma > => < halting,Sigma >
-  if < B,Sigma > => < error > .
  crl < while (B) S,Sigma > => < Sigma' >
   if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < Sigma' > .
+
+ crl < while (B) S,Sigma > => < halting,Sigma >
+  if < B,Sigma > => < error > .
  crl < while (B) S,Sigma > => < halting,Sigma' >
   if < B,Sigma > => < true > /\ < S while (B) S,Sigma > => < halting,Sigma' > .
 

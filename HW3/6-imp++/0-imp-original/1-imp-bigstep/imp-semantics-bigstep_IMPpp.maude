@@ -74,18 +74,37 @@ crl < A1 / A2,Sigma,OmegaIn > => < error,Sigma1, OmegaIn1 >
 crl < A1 / A2,Sigma,OmegaIn > => < error,Sigma2, OmegaIn2 >
  if < A2,Sigma,OmegaIn > => < error,Sigma2,OmegaIn2 > .
 
+ crl < A1 / A2,Sigma,OmegaIn > => < error,Sigma2, OmegaIn2 >
+  if < A1,Sigma,OmegaIn > => < I1,Sigma1,OmegaIn1 > /\ < A2,Sigma1,OmegaIn1 > => < 0,Sigma2,OmegaIn2 > .
+ crl < A1 / A2,Sigma,OmegaIn > => < error,Sigma1, OmegaIn1 >
+  if < A1,Sigma2,OmegaIn2 > => < I1,Sigma1,OmegaIn1 > /\ < A2,Sigma,OmegaIn > => < 0,Sigma2,OmegaIn2 > .
+ crl < A1 / A2,Sigma,OmegaIn > => < error,Sigma2, OmegaIn2 >
+  if < A2,Sigma,OmegaIn > => < 0,Sigma2,OmegaIn2 > .
+
 --- Booleans
-  rl < T,Sigma,OmegaIn > => < T,OmegaIn > .
- crl < A1 <= A2,Sigma,OmegaIn > => < I1 <=Int I2,OmegaIn2 >
-  if < A1,Sigma,OmegaIn > => < I1,OmegaIn1 > /\ < A2,Sigma,OmegaIn1 > => < I2,OmegaIn2 > .
- crl < ! B,Sigma,OmegaIn > => < false,OmegaIn' >
-  if < B,Sigma,OmegaIn > => <  true,OmegaIn' > .
- crl < ! B,Sigma,OmegaIn > => <  true,OmegaIn' >
-  if < B,Sigma,OmegaIn > => < false,OmegaIn' > .
- crl < B1 && B2,Sigma,OmegaIn > => < false,OmegaIn1 >
-  if < B1,Sigma,OmegaIn > => < false,OmegaIn1 > .
- crl < B1 && B2,Sigma,OmegaIn > => < T,OmegaIn2 >
-  if < B1,Sigma,OmegaIn > => < true,OmegaIn1 > /\ < B2,Sigma,OmegaIn1 > => < T,OmegaIn2 > .
+  ---rl < T,Sigma,OmegaIn > => < T,OmegaIn > . --- T can't change Sigma so we don't need that rule or it will infinite loop
+ crl < A1 <= A2,Sigma,OmegaIn > => < I1 <=Int I2,Sigma2,OmegaIn2 >
+  if < A1,Sigma,OmegaIn > => < I1,Sigma1,OmegaIn1 > /\ < A2,Sigma1,OmegaIn1 > => < I2,Sigma2,OmegaIn2 > .
+ crl < A1 <= A2,Sigma,OmegaIn > => < error,Sigma2,OmegaIn2 >
+  if < A1,Sigma,OmegaIn > => < I1,Sigma1,OmegaIn1 > /\ < A2,Sigma1,OmegaIn1 > => < error,Sigma2,OmegaIn2 > .
+ crl < A1 <= A2,Sigma,OmegaIn > => < error,Sigma1,OmegaIn1 >
+  if < A1,Sigma,OmegaIn > => < error,Sigma1,OmegaIn1 > .
+
+ crl < ! B,Sigma,OmegaIn > => < false,Sigma',OmegaIn' >
+  if < B,Sigma,OmegaIn > => < true,Sigma',OmegaIn' > .
+ crl < ! B,Sigma,OmegaIn > => < true,Sigma',OmegaIn' >
+  if < B,Sigma,OmegaIn > => < false,Sigma',OmegaIn' > .
+ crl < ! B,Sigma,OmegaIn > => < error,Sigma',OmegaIn' >
+  if < B,Sigma,OmegaIn > => < error,Sigma',OmegaIn' > .
+
+  crl < B1 && B2,Sigma,OmegaIn > => < false,Sigma1,OmegaIn1 >
+   if < B1,Sigma,OmegaIn > => < false,Sigma1,OmegaIn1 > .
+  crl < B1 && B2,Sigma,OmegaIn > => < error,Sigma1,OmegaIn1 >
+   if < B1,Sigma,OmegaIn > => < error,Sigma1,OmegaIn1 > .
+  crl < B1 && B2,Sigma,OmegaIn > => < T,Sigma2,OmegaIn2 >
+   if < B1,Sigma,OmegaIn > => < true,Sigma1,OmegaIn1 > /\ < B2,Sigma1,OmegaIn1 > => < T,Sigma2,OmegaIn2 > .
+  crl < B1 && B2,Sigma,OmegaIn > => < error,Sigma2,OmegaIn2 >
+   if < B1,Sigma,OmegaIn > => < true,Sigma1,OmegaIn1 > /\ < B2,Sigma1,OmegaIn1 > => < error,Sigma2,OmegaIn2 > .
 *** </new>
 
 *** <new> Add the input or output buffers in all the state configurations below:

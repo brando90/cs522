@@ -24,4 +24,7 @@ mod IMP-SYNTAX is including PL-INT + PL-BOOL + PL-ID .
   op halt`; : -> Stmt .
 *** </new>
 
+*** <new> Adding syntax for dynamic thread creation
+  op spawn_ : Block -> Stmt [prec 57] .
+*** </new>
 endm

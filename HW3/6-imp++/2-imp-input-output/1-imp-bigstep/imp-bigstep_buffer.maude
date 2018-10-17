@@ -1,6 +1,6 @@
-in ../../../builtins.maude
+in ../builtins.maude
 in ../imp-syntax.maude
-in ../../state.maude
+in ../state.maude
 
 *** <new> Including the input/output buffer
 in ../buffer.maude
@@ -19,6 +19,7 @@ rewrite < multiplicationStmt, x |-> 25 & y |-> 5 & (q,r,z) |-> 0, epsilon > .
 rewrite < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0, epsilon > .
 rewrite < countPrimesPgm, epsilon > .
 
+--- BUFFER
 search  < sumPgm, epsilon > =>! Cfg:Configuration .
 
 *** <new> Execute the new programs

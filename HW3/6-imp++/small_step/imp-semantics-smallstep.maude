@@ -125,4 +125,13 @@ rl o < while (B) S,Sigma,OmegaIn,OmegaOut > => < if (B) {S while (B) S} else {},
   rl o < print(I);,Sigma,OmegaIn,OmegaOut > => < {},Sigma,OmegaIn,OmegaOut : I > .
 *** </new>
 
+*** <new> Programs are regarded as statements in the initial state
+--- rl o < P > => < P, .State, OmegaIn,OmegaOut > .
+*** </new>
+
+--- TODO, do we need this or top level? does this not screw up my semantics in composition for example?
+*** <new> A new rule is needed to transform the halting configuration into a normal one.
+---  rl o < halting,Sigma,OmegaIn,OmegaOut > => < {},Sigma,OmegaIn,OmegaOut > .
+*** </new>
+
 endm

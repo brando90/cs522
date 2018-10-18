@@ -1,0 +1,10 @@
+mod BUFFER is including PL-INT .
+  sort Buffer .  subsort Int < Buffer .
+  op epsilon : -> Buffer .
+  op _:_ : Buffer Buffer -> Buffer [assoc id: epsilon] .
+  op head : Buffer -> [Int] .
+  op tail : Buffer -> [Buffer] .
+  var I : Int .  var B : Buffer .
+  eq head(I : B) = I .
+  eq tail(I : B) = B .
+endm

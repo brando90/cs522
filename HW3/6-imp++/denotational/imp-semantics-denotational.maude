@@ -18,9 +18,9 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
 *** functions from states to pairs (value,state).  No need to add new
 *** equations or rules to capture non-determinism, because our current
 *** domains do not support non-determinism.
-  eq [[I]] = funCPO pi -> pairCPO(I,2ndCPO(pi),3rdCPO(pi)) .
+  eq [[I]] = funCPO pi -> tripleCPO(I,2ndCPO(pi),3rdCPO(pi)) .
 
-  eq [[X]] = funCPO pi -> pairCPO(_`(_`)(1stCPO(pi),X),2ndCPO(pi),3rdCPO(pi)) .
+  eq [[X]] = funCPO pi -> tripleCPO(_`(_`)(1stCPO(pi),X),2ndCPO(pi),3rdCPO(pi)) .
 
   eq [[A1 + A2]]
    = funCPO pi
@@ -28,7 +28,7 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
                -> appCPO(funCPO arg2
                          -> ifCPO( 1stCPO(arg1) ==bool error, arg1,
                          ifCPO(1st(arg2)==bool error, tripleCPO(error, 2ndCPO(arg2), 3rd(arg2)),
-                            1stCPO(arg1) +Int 1stCPO(arg2)) ),
+                            tripleCPO(1stCPO(arg1) +Int 1stCPO(arg2),2nd(arg2),3rd(arg2)) ) ),
                          appCPO([[A2]],pairCPO(2ndCPO(arg1),3rdCPO(arg1)))),
                appCPO([[A1]],pi)) .
 
@@ -40,32 +40,35 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
                            -> ifCPO( 1stCPO(arg1) ==bool error, arg1,
                            ifCPO(1st(arg2)==bool error, tripleCPO(error, 2ndCPO(arg2), 3rd(arg2) ),
                               ifCPO(1st(arg2) ==bool 0, tripleCPO(error, 2ndCPO(arg2), 3rd(arg2) ) ,
-                              1stCPO(arg1) +Int 1stCPO(arg2))   )),
+                              tripleCPO(1stCPO(arg1) +Int 1stCPO(arg2),2nd(arg2),3rd(arg2))   )),
                            appCPO([[A2]],pairCPO(2ndCPO(arg1),3rdCPO(arg1)))),
                  appCPO([[A1]],pi)) .
 
-  eq [[T]] = funCPO sigma -> pairCPO(T,sigma) .
+  eq [[T]] = funCPO pi -> tripleCPO(T,2ndCPO(pi),3rdCPO(pi)) .
 
   eq [[A1 <= A2]]
-   = funCPO sigma
-     -> appCPO(funCPO arg1
-               -> appCPO(funCPO arg2 -> pairCPO(1stCPO(arg1) <=Int 1stCPO(arg2), 2ndCPO(arg2)),
-                         appCPO([[A2]],2ndCPO(arg1))),
-               appCPO([[A1]],sigma)) .
+    = funCPO pi
+      -> appCPO(funCPO arg1
+                -> appCPO(funCPO arg2
+                          -> ifCPO( 1stCPO(arg1) ==bool error, arg1,
+                          ifCPO(1st(arg2)==bool error, tripleCPO(error, 2ndCPO(arg2), 3rd(arg2)),
+                             tripleCPO(1stCPO(arg1) <=Int 1stCPO(arg2),2nd(arg2),3rd(arg2)) ) ),
+                          appCPO([[A2]],pairCPO(2ndCPO(arg1),3rdCPO(arg1)))),
+                appCPO([[A1]],pi)) .
 
   eq [[! B]]
-   = funCPO sigma
+   = funCPO pi
      -> appCPO(funCPO arg
-	           -> pairCPO(notBool 1stCPO(arg), 2ndCPO(arg)),
-               appCPO([[B]],sigma)) .
+               -> tripleCPO(notBool 1stCPO(arg), 2ndCPO(arg), 3rdCPO(arg)),
+               appCPO([[B]],pi)) .
 
-  eq [[B1 && B2]]
-   = funCPO sigma
-     -> appCPO(funCPO arg1
-	           -> ifCPO(1stCPO(arg1),
-                        appCPO([[B2]],2ndCPO(arg1)),
-                        pairCPO(false,2ndCPO(arg1))),
-               appCPO([[B1]],sigma)) .
+   eq [[B1 && B2]]
+    = funCPO pi
+      -> appCPO(funCPO arg1
+                -> ifCPO(1stCPO(arg1) ==bool error, tripleCPO(error,2ndCPO(arg1),3rdCPO(arg1)),
+                  ifCPO(1stCPO(arg1),appCPO( [[B2]] ,pairCPO(2ndCPO(arg1),3rdCPO(arg1)) ) ,
+                    arg1) ),
+                appCPO([[B1]],pi)) .
 *** </new>
 
   eq [[{}]] = funCPO sigma -> sigma .

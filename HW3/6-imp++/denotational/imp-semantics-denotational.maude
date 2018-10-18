@@ -71,22 +71,38 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
                 appCPO([[B1]],pi)) .
 *** </new>
 
-  eq [[{}]] = funCPO sigma -> sigma .
+*** <new> All equations defining the denotational semantics of statements
+*** need to change to account for the new mathematical domain, namely
+*** functions from pairs (state,input) to pairs (state,input,output,flag).
+*** <new> Modify the denotational semantics of all statements to
+*** 1) Return pairs (state,input,output,flag), where flag is either halting or ok.
+*** 2) Propagate the error or the halting signal
 
-  eq [[{S}]] = funCPO sigma -> appCPO([[S]],sigma) .
+  eq [[{}]] = funCPO pi -> quadrupleCPO(1stCPO(pi),2ndCPO(pi),epsilon,ok) .
+
+  eq [[{S}]] = funCPO pi -> appCPO([[S]],pi) .
 
 *** <new> The following equation also needs to change, to take the
 *** side effects of the arithmetic expression into account
-  eq [[X = A ;]]
-   = funCPO sigma
-     -> appCPO(funCPO arg
-               -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined,
-                        2ndCPO(arg)[1stCPO(arg) / X],
-                        undefined),
-               appCPO([[A]],sigma)) .
+eq [[X = A ;]]
+ = funCPO pi
+   -> appCPO(funCPO arg
+             -> ifCPO(arg ==Bool error,
+                quadrupleCPO(1stCPO(pi),2ndCPO(pi),epsilon,halting),
+                      ifCPO(_`(_`)(pi,X) =/=Bool undefined,
+                quadrupleCPO(1stCPO(pi)[1stCPO(arg) / X],2ndCPO(arg),epsilon,ok),
+              undefined)),
+             appCPO([[A]],pi)) .
 *** </new>
 
-  eq [[S1 S2]] = funCPO sigma -> appCPO([[S2]],appCPO([[S1]],sigma)) .
+  eq [[S1 S2]] = funCPO pi
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2
+                         ->  ifCPO( 4thCPO(arg1) ==bool ok,
+                         quadrupleCPO( 1stCPO(arg2), 2ndCPO(arg2), 3rdCPO(arg1) : 3rdCPO(arg2) , 4thCPO(arg2) ),
+                          arg1),
+                         appCPO( [[S2]], pairCPO(1stCPO(arg1),2ndCPO(arg1)) ) ),
+               appCPO([[S1]],pi)) .
 
 *** <new> The following equations also need to change, to take the
 *** side effects of the Boolean expressions into account
@@ -114,6 +130,25 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
      -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined,
               pairCPO(_`(_`)(sigma,X) +Int 1, sigma[_`(_`)(sigma,X) +Int 1 / X]),
               undefined) .
+*** </new>
+
+*** <new>  Actual denotational semantics for spawn.
+*** Unfortunately, non-determinism cannot be supported with our current mathematical
+*** domains, and changing the domains to support non-determinism is non-trivial
+*** because power domains are required and leads to rather inefficient interpreters.
+*** Consequently, we don't really spawn; just execute the spawn statement sequentially.
+  eq [[spawn S]] = [[S]] .
+*** </new>
+
+*** <new> Added the denotational semantics of let
+  eq [[let X = A in S]]
+   = funCPO sigma
+     -> appCPO([[S]],sigma[appCPO([[A]],sigma) / X])[_`(_`)(sigma,X) / X] .
+*** </new>
+
+*** <new> Removed the denotational semantics of programs, because programs
+*** are now just statements, so the semantics above suffices.
+---  eq [[(int Xl ; S)]] = appCPO([[S]],(Xl |-> 0)) .
 *** </new>
 
 endm

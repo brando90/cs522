@@ -114,23 +114,23 @@ eq [[X = A ;]]
                 , 2ndCPO(arg)),
                appCPO([[B]],sigma)) .
 
-  eq [[while (B) S]]
-   = fixCPO(funCPO alpha
-            -> funCPO sigma
-               -> appCPO(funCPO arg
-                         -> ifCPO(1stCPO(arg),
-						          appCPO(alpha,appCPO([[S]],2ndCPO(arg))),
-								  2ndCPO(arg)),
-					     appCPO([[B]],sigma))) .
-*** </new>
-
-  eq [[(int Xl ; S)]] = appCPO([[S]],(Xl |-> 0)) .
+ eq [[while (B) S]]
+  = fixCPO(funCPO alpha
+      -> funCPO pi
+        -> appCPO( funCPO arg1
+            -> appCPO( funCPO arg2
+                -> appCPO( funCPO arg3
+                    -> ifCPO(1stCPO(arg1) ==bool error, quadrupleCPO(2ndCPO(arg1),3rdCPO(arg1),epsilon,halting) , ifCPO(1stCPO(arg1)==bool false, quadrupleCPO(2ndCPO(arg1),3rdCPO(arg1),epsilon,ok) ,ifCPO(4thCPO(arg2)==bool halting,arg2, quadrupleCPO(1stCPO(arg3),2ndCPO(arg3), 3rdCPO(arg2) : 3rdCPO(arg3), 4thCPO(arg3) ) ) ) ) ,
+          STATEARG3) ,
+        STATEARG2 ),
+      STATEARG1 )
+      ) .
 
 *** <new> The actual denotational semantics of increment
   eq [[++ X]]
    = funCPO sigma
      -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined,
-              pairCPO(_`(_`)(sigma,X) +Int 1, sigma[_`(_`)(sigma,X) +Int 1 / X]),
+              quadrupleCPO(_`(_`)(sigma,X) +Int 1, sigma[_`(_`)(sigma,X) +Int 1 / X], 2ndCPO(sigma),epsilon,ok),
               undefined) .
 *** </new>
 
@@ -145,7 +145,7 @@ eq [[X = A ;]]
 *** <new> Added the denotational semantics of let
   eq [[let X = A in S]]
    = funCPO sigma
-     -> appCPO([[S]],sigma[appCPO([[A]],sigma) / X])[_`(_`)(sigma,X) / X] .
+     -> appCPO( [[S]],sigma[appCPO([[A]],sigma) / X])[_`(_`)(sigma,X) / X] .
 *** </new>
 
 *** <new> Removed the denotational semantics of programs, because programs

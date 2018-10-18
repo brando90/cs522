@@ -121,9 +121,9 @@ eq [[X = A ;]]
             -> appCPO( funCPO arg2
                 -> appCPO( funCPO arg3
                     -> ifCPO(1stCPO(arg1) ==bool error, quadrupleCPO(2ndCPO(arg1),3rdCPO(arg1),epsilon,halting) , ifCPO(1stCPO(arg1)==bool false, quadrupleCPO(2ndCPO(arg1),3rdCPO(arg1),epsilon,ok) ,ifCPO(4thCPO(arg2)==bool halting,arg2, quadrupleCPO(1stCPO(arg3),2ndCPO(arg3), 3rdCPO(arg2) : 3rdCPO(arg3), 4thCPO(arg3) ) ) ) ) ,
-          STATEARG3) ,
-        STATEARG2 ),
-      STATEARG1 )
+          appCPO( alpha , pairCPO(1stCPO(arg2),2ndCPO(arg2)) ) ) ,
+        appCPO( [[S]], pairCPO(2ndCPO(arg1),3rdCPO(arg1)) ) ),
+      appCPO( [[b]], pi ) )
       ) .
 
 *** <new> The actual denotational semantics of increment

@@ -17,7 +17,6 @@ in imp-split-plug-evaluation-contexts
 ---in imp-semantics-evaluation-contexts-1
 in imp-semantics-evaluation-contexts-2
 ---in imp-semantics-evaluation-contexts-3
-q
 
 in ../imp-programs.maude
 

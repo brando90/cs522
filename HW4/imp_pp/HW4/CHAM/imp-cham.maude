@@ -13,7 +13,6 @@ in imp-heating-cooling-cham
 ---search {| X = (Y:Id + Z:Id) / (X + 2) ; |} =>! Sol:Solution .
 
 in imp-semantics-cham
-q
 
 in ../imp-programs.maude
 

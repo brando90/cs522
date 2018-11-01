@@ -18,28 +18,32 @@ mod IMP-SYNTAX is including PL-INT + PL-BOOL + PL-ID .
   op while(_)_ : BExp Block -> Stmt [prec 59 format (b so d d s d)] .
 --- Pgm
   sort Pgm .
-
-  *** <new> Syntax for halt
-    op halt`; : -> Stmt .
-  *** </new>
-
-  *** <new> Adding syntax for dynamic thread creation
-    op spawn_ : Block -> Stmt [prec 57] .
-  *** </new>
-
+---  op int_;_ : List{Id} Stmt -> Pgm [prec 70 format (nb o d ni d)] .
   *** <new> Remove the previous global variable declarations (see above)
   *** and instead subsort Stmt to Pgm
     subsort Stmt < Pgm .
   *** </new>
 
-  *** <new> Add syntax for local variable declarations
-    op int_; : List{Id} -> Stmt .
-  *** </new>
+*** <new> Syntax for variable increment
+  op ++_ : Id -> AExp [prec 0] .
+*** </new>
 
-  *** <new> Syntax for input/output
-    op read() : -> AExp .
-    op print(_); : AExp -> Stmt [prec 57] .
-  *** </new>
+*** <new> Syntax for input/output
+  op read() : -> AExp .
+  op print(_); : AExp -> Stmt [prec 57] .
+*** </new>
+
+*** <new> Syntax for halt
+  op halt`; : -> Stmt .
+*** </new>
+
+*** <new> Adding syntax for dynamic thread creation
+  op spawn_ : Block -> Stmt [prec 57] .
+*** </new>
+
+*** <new> Add syntax for local variable declarations
+  op int_; : List{Id} -> Stmt .
+*** </new>
 
 endm
 

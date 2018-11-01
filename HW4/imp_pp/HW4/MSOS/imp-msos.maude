@@ -7,7 +7,6 @@ in ../buffer.maude
 *** </new>
 
 in imp-semantics-msos
-q
 
 in ../imp-programs.maude
 

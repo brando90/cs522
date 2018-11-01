@@ -15,8 +15,8 @@ mod IMP-CONFIGURATIONS-MSOS is including IMP-DESUGARED-SYNTAX + STATE .
   op state`=_ : State -> Attribute .
 
 ***
-  op ++_ : Id -> AExp [prec 0] .
-  op let_ : Configuration  -> Configuration .
+---  op ++_ : Id -> AExp [prec 0] .
+---  op let_ : Configuration  -> Configuration .
 
 *** <new> Add new attributes in the label records to hold the input/output buffers
   op input`=_  : Buffer -> Attribute [gather(&)] .  --- gather attribute only for parsing reasons

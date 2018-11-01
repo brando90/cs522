@@ -1,4 +1,4 @@
-mod IMP-HEATING-COOLING-CHAM is including IMP-SYNTAX + CHAM .
+mod IMP-HEATING-COOLING-CHAM is including IMP-DESUGARED-SYNTAX + CHAM .
   sorts Hole ResultAExp ResultBExp ResultStmt Result .
   subsorts Hole < AExp BExp Stmt < Molecule .
   subsorts ResultAExp ResultBExp ResultStmt < Result < Molecule .
@@ -49,4 +49,9 @@ mod IMP-HEATING-COOLING-CHAM is including IMP-SYNTAX + CHAM .
  crl {| (if (B) S1 else S2 ~> C) # Ms |} => {| (B ~> if ([]) S1 else S2 ~> C) # Ms |}
   if notBool(B :: Result) .
   rl {| (R ~> if ([]) S1 else S2 ~> C) # Ms |} => {| (if (R) S1 else S2 ~> C) # Ms |} .
+
+  *** <new> Added heating/cooling rules for let, allowing to evaluate its binding expression
+    crl {| (let X = A in S ~> C) # Ms |} => {| (A ~> let X = [] in S ~> C) # Ms |} if notBool(A :: Result) .
+     rl {| (R ~> let X = [] in S ~> C) # Ms |} => {| (let X = R in S ~> C) # Ms |} .
+  *** </new>
 endm

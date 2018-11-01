@@ -14,6 +14,17 @@ mod IMP-CONFIGURATIONS-MSOS is including IMP-SYNTAX + STATE .
   op _,_ : Record Record -> Record [assoc comm id: empty] .
   op state`=_ : State -> Attribute .
 
+***
+  ---op `++_ : Pgm -> Configuration . ---  didn't expect token X: skipped: `
+  op ++_ : Pgm -> Configuration .
+  ---op ++_,_> : Id Record -> Configuration .
+  ---op ++_ : Id -> Configuration . --- didn't expect token >:, crl o < ++ X , ( state = Sigma , R ) > <---*HERE*
+  --- op <++_,_> : Id Record -> Configuration . --- Warning: "imp-semantics-msos.maude", line 77 (mod IMP-SEMANTICS-MSOS): bad token ++.
+  ---op <`++_,_> : Pgm Record -> Configuration . --- bad token ++.
+  ---op <`++_,_> : Pgm Record -> Configuration . --- bad token ++. didn't expect token >: crl o < ++ X , ( state = Sigma , R ) > <---*HERE*
+  ---op <++_,_> : Pgm Record -> Configuration .
+  op let_ : Configuration  -> Configuration .
+
 *** <new> Add new attributes in the label records to hold the input/output buffers
   op input`=_  : Buffer -> Attribute [gather(&)] .  --- gather attribute only for parsing reasons
   op output`=_ : Buffer -> Attribute [gather(&)] .
@@ -115,7 +126,8 @@ mod IMP-SEMANTICS-MSOS is including IMP-CONFIGURATIONS-MSOS .
 
 *** <new> The MSOS of spawning
 --- See comments on small-step SOS
-  vars S' S2' : Stmt .
+  ---vars S'
+  vars S2' : Stmt .
   op spawn_ : Stmt -> Stmt [ditto] .
  crl o < spawn S,R > => < spawn S',R' > if o < S,R > => < S',R' > .
  crl o < spawn S1 S2,R > => < spawn S1 S2',R' > if o < S2,R > => < S2',R' > .

@@ -1,6 +1,7 @@
 mod IMP-SEMANTICS-EVALUATION-CONTEXTS is including IMP-SPLIT-PLUG-EVALUATION-CONTEXTS .
   var X : Id .  var I I1 I2 : Int .  var B B2 : BExp .  var S S1 S2 : Stmt .
   var Xl : List{Id} .  var Sigma : State .  var Cfg Cfg' : Configuration .  var C : Context .
+  var P : Pgm .
 
  crl o Cfg => Cfg' if o split(Cfg) => Cfg' .   --- generic rule enabling splitting
 
@@ -58,8 +59,10 @@ mod IMP-SEMANTICS-EVALUATION-CONTEXTS is including IMP-SPLIT-PLUG-EVALUATION-CON
 *** </new>
 
 *** <new> Programs are regarded as statements in the initial state
-  rl o < P, OmegaIn > => < P, .State, OmegaIn, epsilon> .
-  rl o < P > => < P,.State,OmegaIn,OmegaOut> .
+---  op <_,_> : Pgm Buffer -> Configuration .
+---  op <_,_,_,_> : Stmt State Buffer Buffer -> Configuration .
+  rl o < P , OmegaIn > => < P , .State , OmegaIn, epsilon > .
+---  rl o < P > => < P, .State , OmegaIn, OmegaOut > .
 *** </new>
 
 *** <new> Added the reduction semantics rule for let

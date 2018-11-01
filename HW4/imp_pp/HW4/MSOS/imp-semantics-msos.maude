@@ -1,4 +1,4 @@
-mod IMP-CONFIGURATIONS-MSOS is including IMP-SYNTAX + STATE .
+mod IMP-CONFIGURATIONS-MSOS is including IMP-DESUGARED-SYNTAX + STATE .
 
 *** <new> Include the module BUFFER as well
   including BUFFER .
@@ -15,14 +15,7 @@ mod IMP-CONFIGURATIONS-MSOS is including IMP-SYNTAX + STATE .
   op state`=_ : State -> Attribute .
 
 ***
-  ---op `++_ : Pgm -> Configuration . ---  didn't expect token X: skipped: `
-  op ++_ : Pgm -> Configuration .
-  ---op ++_,_> : Id Record -> Configuration .
-  ---op ++_ : Id -> Configuration . --- didn't expect token >:, crl o < ++ X , ( state = Sigma , R ) > <---*HERE*
-  --- op <++_,_> : Id Record -> Configuration . --- Warning: "imp-semantics-msos.maude", line 77 (mod IMP-SEMANTICS-MSOS): bad token ++.
-  ---op <`++_,_> : Pgm Record -> Configuration . --- bad token ++.
-  ---op <`++_,_> : Pgm Record -> Configuration . --- bad token ++. didn't expect token >: crl o < ++ X , ( state = Sigma , R ) > <---*HERE*
-  ---op <++_,_> : Pgm Record -> Configuration .
+  op ++_ : Id -> AExp [prec 0] .
   op let_ : Configuration  -> Configuration .
 
 *** <new> Add new attributes in the label records to hold the input/output buffers
@@ -38,6 +31,8 @@ mod IMP-CONFIGURATIONS-MSOS is including IMP-SYNTAX + STATE .
   op <_,_> : Pgm Buffer -> Configuration .
 *** </new>
 
+  op <_> : Pgm -> Configuration .
+
   op o_ : Configuration -> ExtendedConfiguration [prec 80] .   --- one step
   op *_ : Configuration -> ExtendedConfiguration [prec 80] .   --- all steps
   var Cfg Cfg' : Configuration .
@@ -46,8 +41,10 @@ endm
 
 mod IMP-SEMANTICS-MSOS is including IMP-CONFIGURATIONS-MSOS .
   var X : Id .   var R R' : Record . var Sigma Sigma' : State .
-  var I I1 I2 : Int .  var Xl : List{Id} .  var S S1 S1' S2 : Stmt .
+  var I I1 I2 : Int .  var Xl : List{Id} .  var S S1 S1' S2 S2' : Stmt .
   var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 B2' : BExp .
+  var OmegaIn OmegaOut : Buffer .
+  var P : Pgm .
 
  crl o < X,(state = Sigma, R) > => < Sigma(X),(state = Sigma, R) >
   if Sigma(X) =/=Bool undefined .
@@ -91,43 +88,18 @@ mod IMP-SEMANTICS-MSOS is including IMP-CONFIGURATIONS-MSOS .
 *** Its role is to "catch" halting signals at the top of the program.
   op top_ : Stmt -> Stmt .
   var S' : Stmt .
- crl o < top S,(halting = T, R) > => < top S',(halting = false, R') >
-  if o < S,(halting = T, R) > => < S',(halting = false, R') > .
+ crl o < top S,(halting = T, R) > => < top S',(halting = false, R') > if o < S,(halting = T, R) > => < S',(halting = false, R') > .
   rl o < top {},R > => < {},R > .
- crl o < top S,(halting = T, R) > => < {},(halting = false, R') >
-  if o < S,(halting = T, R) > => < S',(halting = true, R') > .
-*** </new>
-
-*** <new> The rule below is not good enough anymore.
-*** It will be changed below to initialize all the attributes.
----  rl o < int Xl ; S > => < S,(state = Xl |-> 0) > .
-*** </new>
-*** <new> The rule for programs is not good enough anymore.
-*** It will be changed below to also initialize the halting attribute and
-*** to wrap the whole statement within a new "top" construct.
----  rl o < int Xl ; S > => < S,(state = Xl |-> 0) > .
-*** </new>
-*** <new> Also, the rule for programs needs to change, to be defined using the top construct.
----  rl o < int Xl ; S > => < top S,(state = Xl |-> 0, halting = false) > .
-*** </new>
-*** <new> Modify the rule for programs to initialize the state to one also including the input/output
----  rl o < int Xl ; S,OmegaIn > => < S,(state = Xl |-> 0, input = OmegaIn, output = epsilon) > .
-*** </new>
-*** <new> Also, the rule for programs needs to change, to be defined using the top construct.
----  rl o < int Xl ; S,OmegaIn > => < S,(state = Xl |-> 0, input = OmegaIn, output = epsilon, halting = false) > .
+ crl o < top S,(halting = T, R) > => < {},(halting = false, R') > if o < S,(halting = T, R) > => < S',(halting = true, R') > .
 *** </new>
 
 *** <new> Add the actual MSOS of input/output
-  var OmegaIn OmegaOut : Buffer .
   rl o < read(),(input = I : OmegaIn, R) > => < I,(input = OmegaIn, R) > .
  crl o < print(A);,R > => < print(A');,R' > if o < A,R > => < A',R' > .
   rl o < print(I);,(output = OmegaOut, R) > => < {},(output = (OmegaOut : I), R) > .
 *** </new>
 
 *** <new> The MSOS of spawning
---- See comments on small-step SOS
-  ---vars S'
-  vars S2' : Stmt .
   op spawn_ : Stmt -> Stmt [ditto] .
  crl o < spawn S,R > => < spawn S',R' > if o < S,R > => < S',R' > .
  crl o < spawn S1 S2,R > => < spawn S1 S2',R' > if o < S2,R > => < S2',R' > .

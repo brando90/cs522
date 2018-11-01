@@ -1,0 +1,52 @@
+Q: Handle also a short essay discussing the advantages and limitations
+of each of the semantic approaches discussed so far in class,
+assigning a (justified) score between 1 and 10 to each of them.
+
+Big-Step - 7
+This one might seem quite high despite big step being actually sort of terrible.
+I think I just really like its recursive Big step ability to recurse.
+I find it beautiful for some reason. Not very good reason.
+Though, I bet it impossible to actually use it cuz every time one has to
+change the whole language.
+It was a nightmare!
+Desperate concurrency is hilarious. Not good though.
+
+Small-Step - 6
+Similar to big step in the sense that it had horrible modularity.
+I didn't like the * cgf thing because it made me have severals bugs on
+assingment 2.
+However, I recognize that its really nice because one can debug more easily
+each step.
+Though, its unable to capture some features that we want like concurrency, but
+better than big step
+
+Denotational - 1
+This is conceptually so complicated that its just not worth it at all.
+It's syntax in mode is horrible and very difficult to use.
+I can't imagine what the power sets thing for concurrency must be.
+It must be horrible to actually use.
+If you like the fixed point thm thing I guess its ok.
+I'm not a fan cuz I like practical stuff.
+Its also not modular.
+
+MSOS - 9
+Beautiful. Its modularity is amazing. I spend a lot of time coding,
+so I really like it when things are this beautifully implemented, even
+if its not perfect, at least it allow for fast prototyping, which is
+great. Too much time is spent coding and debugging.
+
+RSEC - 8
+Similar to MSOS, but not modular enough.
+I don't actually know SCHEME but I can imagine how powerful the context
+extracting might be. Seems like a really incredible language feature if available.
+
+CHAM - 10
+This one took me some time to figure out mentally, but the modularity of it
+is so powerful that even with a sloppy mental model of it I was able to implement it.
+This must deserve a 10.
+Clearly, my scores were based mostly on modularity.
+Perhaps because I really like it when the implementation experience is nice
+and reusable.
+Correctness and non-determinism are also import even if I didn't comment about it
+as much, but I guess as the one doing the HW's I can't help but reflect on my experience in doing the HW.
+Plus I tend to implement a lot of code, so the nicer the code the happier I am.

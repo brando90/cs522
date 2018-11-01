@@ -1,0 +1,43 @@
+mod IMP-SEMANTICS-EVALUATION-CONTEXTS is including IMP-SPLIT-PLUG-EVALUATION-CONTEXTS .
+  var X : Id .  var I I1 I2 : Int .  var B B2 : BExp .  var S S1 S2 : Stmt .  var Xl : List{Id} .
+  var Sigma : State .  var Cfg Cfg' : Configuration .  var Syn Syn' : Syntax  .  var C : Context .
+
+  crl o Cfg => Cfg' if plug(o split(Cfg)) => Cfg' .           --- generic rule enabling splitting
+  crl o C[Syn] => C[Syn'] if C =/=Bool [] /\ o Syn => Syn' .  --- characteristic rule
+
+*** <new> Change the rule below to also include the input/output
+  var OmegaIn OmegaOut : Buffer .
+ crl o < C,Sigma,OmegaIn,OmegaOut >[X] => < C,Sigma,OmegaIn,OmegaOut >[Sigma(X)]
+  if Sigma(X) =/=Bool undefined .
+*** </new>
+
+  rl o I1 + I2 => I1 +Int I2 .
+ crl o I1 / I2 => I1 /Int I2 if I2 =/=Bool 0 .
+  rl o I1 <= I2 => I1 <=Int I2 .
+  rl o ! true => false .
+  rl o ! false => true  .
+  rl o true && B2 => B2 .
+  rl o false && B2 => false .
+  rl o {S} => S .
+
+*** <new> Change the rule below to also include the input/output
+ crl o < C,Sigma,OmegaIn,OmegaOut >[X = I ;] => < C,Sigma[I / X],OmegaIn,OmegaOut >[{}]
+  if Sigma(X) =/=Bool undefined .
+*** </new>
+
+  rl o {} S2 => S2 .
+  rl o if (true) S1 else S2 => S1 .
+  rl o if (false) S1 else S2 => S2 .
+  rl o while (B) S => if (B) {S while (B) S} else {} .
+
+*** <new> Changed the rule below to also include the input buffer and
+*** the empty output buffer in the initial configuration
+  rl o < int Xl ; S,OmegaIn > => < S,(Xl |-> 0),OmegaIn,epsilon > .
+*** </new>
+
+*** <new> Added the actual reduction semantics with evaluation contexts of read and print
+  rl o < C,Sigma,I : OmegaIn,OmegaOut >[read()] => < C,Sigma,OmegaIn,OmegaOut >[I] .
+  rl o < C,Sigma,OmegaIn,OmegaOut >[print(I);] => < C,Sigma,OmegaIn,OmegaOut : I >[{}] .
+*** </new>
+
+endm

@@ -1,0 +1,40 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+in imp-split-plug-evaluation-contexts
+
+search split(3 <= (2 + X) / 7) =>! Syn:[Syntax] .
+
+--- Below we show the three different ways to represent the reduction semantics
+--- with evaluation contexts of IMP into rewrite logic.
+--- Include which one of them you want.
+
+---in imp-semantics-evaluation-contexts-1
+---in imp-semantics-evaluation-contexts-2
+in imp-semantics-evaluation-contexts-3
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-EVALUATION-CONTEXTS + IMP-PROGRAMS .  endm
+
+--- set trace on .
+
+rewrite * < sumPgm > .
+rewrite * < collatzStmt, n |-> 10 & (q,r,s) |-> 0 > .
+rewrite * < collatzPgm > .
+rewrite * < multiplicationStmt, x |-> 25 & y |-> 5 & (q,r,z) |-> 0 > .
+rewrite * < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 > .
+rewrite * < countPrimesPgm > .
+
+search * < sumPgm > =>! Cfg:ExtendedConfiguration .
+
+*** <new> Execute the new programs
+rewrite * < sum++Pgm > .
+search  * < sum++Pgm > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < nondet++Pgm > .
+search  * < nondet++Pgm > =>! Cfg:ExtendedConfiguration .
+*** </new>
+
+quit

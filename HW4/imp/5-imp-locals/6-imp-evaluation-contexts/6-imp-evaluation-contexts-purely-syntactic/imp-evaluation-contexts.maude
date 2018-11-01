@@ -1,0 +1,23 @@
+in ../../../../builtins.maude
+in ../../imp-syntax.maude
+
+in imp-split-plug-evaluation-contexts
+
+search split(3 <= (2 + X) / 7) =>! Syn:[Syntax] .
+
+in imp-semantics-evaluation-contexts-3
+
+in ../../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-EVALUATION-CONTEXTS + IMP-PROGRAMS .  endm
+
+--- Programs below evaluate to skip.  To see something, insert a statement
+--- which stucks the computation (e.g., a division by zero) right before
+--- the end of the main block.
+rewrite * int s ; sumPgm a = 1 / 0 ; .
+rewrite * int s ; collatzPgm a = 1 / 0 ; .
+rewrite * int s ; countPrimesPgm a = 1 / 0 ; .
+
+search  * int s ; sumPgm =>! Cfg:ExtendedConfiguration .
+
+quit

@@ -1,0 +1,39 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+*** <new> Including the input/output buffer
+in ../buffer.maude
+*** </new>
+
+in cham
+in imp-heating-cooling-cham
+
+search {| X = 3 / (X + 2) ; |} =>! Sol:Solution .
+search {| X = (Y:Id + Z:Id) / (X + 2) ; |} =>! Sol:Solution .
+
+in imp-semantics-cham
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-CHAM + IMP-PROGRAMS .  endm
+
+rewrite {| {| sumPgm |} # {| epsilon |} |} .
+rewrite {| {| collatzStmt |} # {| n |-> 10 & (q,r,s) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| collatzPgm |} # {| epsilon |} |} .
+rewrite {| {| multiplicationStmt |} # {| x |-> 25 & y |-> 5 & (q,r,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| primalityStmt |} # {| n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 |} # {| input # epsilon |} # {| output # epsilon |} |} .
+rewrite {| {| countPrimesPgm |} # {| epsilon |} |} .
+
+search  {| {| sumPgm |} # {| epsilon |} |} =>! Sol:Solution .
+
+*** <new> Execute the new programs
+rewrite {| {| sumIOPgm |} # {| 100 |} |} .
+search  {| {| sumIOPgm |} # {| 100 |} |} =>! Sol:Solution .
+rewrite {| {| whileIOPgm |} # {| 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 |} |} .
+search  {| {| whileIOPgm |} # {| 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 |} |}  =>! Sol:Solution .
+rewrite {| {| nondetIOStmt |} # {| .State |} # {| input # 10 : 20 : 30 |} # {| output # epsilon |} |} .
+search  {| {| nondetIOStmt |} # {| .State |} # {| input # 10 : 20 : 30 |} # {| output # epsilon |} |} =>! Sol:Solution .
+*** </new>
+
+quit

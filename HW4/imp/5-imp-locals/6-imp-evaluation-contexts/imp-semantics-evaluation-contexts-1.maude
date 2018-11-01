@@ -1,0 +1,33 @@
+mod IMP-SEMANTICS-EVALUATION-CONTEXTS is including IMP-SPLIT-PLUG-EVALUATION-CONTEXTS .
+  var X : Id .  var I I1 I2 : Int .  var B B2 : BExp .  var S S1 S2 : Stmt .
+  var P : Pgm .  var Sigma : State .  var Cfg : Configuration .  var C : Context .
+
+ crl o Cfg => plug(< C,Sigma >[Sigma(X)]) if split(Cfg) => < C,Sigma >[X] /\ Sigma(X) =/=Bool undefined .
+ crl o Cfg => plug(C[I1 +Int I2]) if split(Cfg) => C[I1 + I2] .
+ crl o Cfg => plug(C[I1 /Int I2]) if split(Cfg) => C[I1 / I2] /\ I2 =/=Bool 0 .
+ crl o Cfg => plug(C[I1 <=Int I2]) if split(Cfg) => C[I1 <= I2] .
+ crl o Cfg => plug(C[false]) if split(Cfg) => C[! true] .
+ crl o Cfg => plug(C[true]) if split(Cfg) => C[! false] .
+ crl o Cfg => plug(C[B2]) if split(Cfg) => C[true && B2] .
+ crl o Cfg => plug(C[false]) if split(Cfg) => C[false && B2] .
+ crl o Cfg => plug(C[S]) if split(Cfg) => C[{S}] .
+ crl o Cfg => plug(< C,Sigma[I / X] >[{}]) if split(Cfg) => < C,Sigma >[X = I ;] /\ Sigma(X) =/=Bool undefined .
+ crl o Cfg => plug(C[S2]) if split(Cfg) => C[{} S2] .
+ crl o Cfg => plug(C[S1]) if split(Cfg) => C[if (true) S1 else S2] .
+ crl o Cfg => plug(C[S2]) if split(Cfg) => C[if (false) S1 else S2] .
+ crl o Cfg => plug(C[if (B) {S while (B) S} else {}]) if split(Cfg) => C[while (B) S] .
+
+*** <new> The next rule is incorrect now.  See small-step SOS.
+---  rl o < int Xl ; S > => < S,(Xl |-> 0) > .
+*** </new>
+
+*** <new> Programs are regarded as statements in the initial state
+  rl o < P > => < P,.State > .
+*** </new>
+
+*** <new> Added the reduction semantics rule for let
+ crl o Cfg => plug(< C,Sigma[I / X] >[S  X = Sigma(X) ;])
+  if split(Cfg) => < C, Sigma >[let X = I in S] .
+*** </new>
+
+endm

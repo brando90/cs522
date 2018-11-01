@@ -1,0 +1,84 @@
+mod IMP-PROGRAMS is including IMP-SYNTAX .
+  ops sumPgm collatzPgm countPrimesPgm : -> Pgm .
+  ops collatzStmt multiplicationStmt primalityStmt : -> Stmt .
+  eq sumPgm = (
+     int n ;
+     n = 100 ;
+     while (!(n <= 0)) {
+       s = s + n ;
+       n = n + -1 ;
+     }    ) .
+
+  eq collatzStmt = (
+     while (!(n <= 1)) {
+       s = s + 1 ;
+       int q, r ;
+       q = n / 2 ;
+       r = q + q + 1 ;
+       if (r <= n) { n = n + n + n + 1 ; } else { n = q ; }
+     }     ) .
+
+  eq collatzPgm = (
+     int m ;
+     m = 10 ;
+     while (!(m <= 2)) {
+       int n ;
+       n = m ;
+       m = m + -1 ;
+       collatzStmt
+     }     ) .
+
+  eq multiplicationStmt = (        --- fast multiplication (base 2) algorithm
+     z = 0 ;
+     while (!(x <= 0)) {
+       int q, r ;
+       q = x / 2 ;
+       r = q + q + 1 ;
+       if (r <= x) { z = z + y ; } else {}
+       x = q ;
+       y = y + y ;
+     }     ) .
+
+  eq primalityStmt = (
+     int i, q ;
+     i = 2 ;
+     q = n / i ;
+     t = 1 ;
+     while (i <= q && 1 <= t) {
+       int x, y, z ;
+       x = i ;
+       y = q ;
+       multiplicationStmt
+       if (n <= z) { t = 0 ; } else { i = i + 1 ;  q = n / i ; }
+     }     ) .
+
+  eq countPrimesPgm = (
+     int m, n, t ;
+     m = 10 ;  n = 2 ;
+     while (n <= m) {
+       primalityStmt
+       if (1 <= t) { s = s + 1 ; } else {}
+       n = n + 1 ;
+     }     ) .
+
+*** <new> Programs testing shadowing
+  op shadow1Stmt : -> Stmt .
+  eq shadow1Stmt = {
+     int x ;
+     x = 1 ;
+     y = x ;
+     int x ;
+     x = 2 ;
+     z = x ;    } .
+
+  op shadow2Stmt : -> Stmt .
+  eq shadow2Stmt = {
+     int x ;
+     x = 1 ;
+     { int x ;
+       x = 2 ;
+       z = x ; }
+     y = x ;    } .
+*** </new>
+
+endm

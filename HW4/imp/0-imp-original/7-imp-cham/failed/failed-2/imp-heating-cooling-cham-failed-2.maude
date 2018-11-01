@@ -1,0 +1,10 @@
+mod IMP-HEATING-COOLING-CHAM-FAILED-2 is including IMP-CHAM-SYNTAX .
+  var A1 A2 : Molecule .  var Ms : Bag{Molecule} .  var C : Solution .
+--- + strict in its first argument
+  rl {| (A1 + A2 <| C) # Ms |} => {| (A1 <| {| {| [] + A2 <| C |} |}) # Ms |} .
+  rl {| (A1 <| {| {| [] + A2 <| C |} |}) # Ms |} => {| (A1 + A2 <| C) # Ms |} .
+--- / strict in its second argument
+  rl {| (A1 / A2 <| C) # Ms |} => {| (A2 <| {| {| A1 / [] <| C |} |}) # Ms |} .
+  rl {| (A2 <| {| {| A1 / [] <| C |} |}) # Ms |} => {| (A1 / A2 <| C) # Ms |} .
+--- ... and so on
+endm

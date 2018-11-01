@@ -1,0 +1,61 @@
+mod IMP-SEMANTICS-DENOTATIONAL is including IMP-DESUGARED-SYNTAX + STATE + CPO .
+  sort Syntax .
+  subsorts AExp BExp Stmt Pgm < Syntax .
+  subsorts Int Bool State < CPO .
+
+  op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
+
+  var X : Id . var Xl : List{Id} .  var I : Int .  var A1 A2 A : AExp .
+  var T : Bool .  var B1 B2 B : BExp .  var S1 S2 S : Stmt .
+  ops sigma alpha arg : -> CPOVar .
+
+  eq [[I]] = funCPO sigma -> I .
+
+  eq [[X]] = funCPO sigma -> _`(_`)(sigma,X) .
+
+  eq [[A1 + A2]] = funCPO sigma -> appCPO([[A1]],sigma) +Int appCPO([[A2]],sigma) .
+
+  eq [[A1 / A2]] = funCPO sigma -> ifCPO(appCPO([[A2]],sigma) =/=Bool 0,
+                                         appCPO([[A1]],sigma) /Int appCPO([[A2]],sigma),
+                                         undefined) .
+
+  eq [[T]] = funCPO sigma -> T .
+
+  eq [[A1 <= A2]] = funCPO sigma -> appCPO([[A1]],sigma) <=Int appCPO([[A2]],sigma) .
+
+  eq [[! B]] = funCPO sigma -> notBool appCPO([[B]],sigma) .
+
+  eq [[B1 && B2]] = funCPO sigma -> ifCPO(appCPO([[B1]],sigma),appCPO([[B2]],sigma),false) .
+
+  eq [[{}]] = funCPO sigma -> sigma .
+
+  eq [[{S}]] = funCPO sigma -> appCPO([[S]],sigma) .
+
+  eq [[X = A ;]]
+   = funCPO sigma
+     -> appCPO(funCPO arg
+               -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined, sigma[arg / X], undefined),
+               appCPO([[A]],sigma)) .
+
+  eq [[S1 S2]] = funCPO sigma -> appCPO([[S2]],appCPO([[S1]],sigma)) .
+
+  eq [[if (B) S1 else S2]]
+   = funCPO sigma -> ifCPO(appCPO([[B]],sigma),appCPO([[S1]],sigma),appCPO([[S2]],sigma)) .
+
+  eq [[while (B) S]]
+   = fixCPO(funCPO alpha
+            -> funCPO sigma
+               -> ifCPO(appCPO([[B]],sigma),appCPO(alpha,appCPO([[S]],sigma)),sigma)) .
+
+*** <new> Added the denotational semantics of let
+  eq [[let X = A in S]]
+   = funCPO sigma
+     -> appCPO([[S]],sigma[appCPO([[A]],sigma) / X])[_`(_`)(sigma,X) / X] .
+*** </new>
+
+*** <new> Removed the denotational semantics of programs, because programs
+*** are now just statements, so the semantics above suffices.
+---  eq [[(int Xl ; S)]] = appCPO([[S]],(Xl |-> 0)) .
+*** </new>
+
+endm

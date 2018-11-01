@@ -1,0 +1,106 @@
+mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
+  sort Syntax .
+  subsorts AExp BExp Stmt Pgm < Syntax .
+  subsorts Int Bool State < CPO .
+
+  op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
+
+  var X : Id . var Xl : List{Id} .  var I : Int .  var A1 A2 A : AExp .
+  var T : Bool .  var B1 B2 B : BExp .  var S1 S2 S : Stmt .
+  ops sigma alpha arg arg1 arg2 : -> CPOVar .
+
+*** <new> All equations defining denotational semantics of expressions
+*** need to change to account for the new mathematical domain, namely
+*** functions from states to pairs (value,state).  No need to add new
+*** equations or rules to capture non-determinism, because our current
+*** domains do not support non-determinism.
+  eq [[I]] = funCPO sigma -> pairCPO(I,sigma) .
+
+  eq [[X]] = funCPO sigma -> pairCPO(_`(_`)(sigma,X),sigma) .
+
+  eq [[A1 + A2]]
+   = funCPO sigma
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2 -> pairCPO(1stCPO(arg1) +Int 1stCPO(arg2), 2ndCPO(arg2)),
+                         appCPO([[A2]],2ndCPO(arg1))),
+               appCPO([[A1]],sigma)) .
+
+  eq [[A1 / A2]]
+   = funCPO sigma
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2 -> ifCPO(1stCPO(arg2) =/=Bool 0,
+                                              pairCPO(1stCPO(arg1) /Int 1stCPO(arg2), 2ndCPO(arg2)),
+                                              undefined),
+                         appCPO([[A2]],2ndCPO(arg1))),
+               appCPO([[A1]],sigma)) .
+
+  eq [[T]] = funCPO sigma -> pairCPO(T,sigma) .
+
+  eq [[A1 <= A2]]
+   = funCPO sigma
+     -> appCPO(funCPO arg1
+               -> appCPO(funCPO arg2 -> pairCPO(1stCPO(arg1) <=Int 1stCPO(arg2), 2ndCPO(arg2)),
+                         appCPO([[A2]],2ndCPO(arg1))),
+               appCPO([[A1]],sigma)) .
+
+  eq [[! B]]
+   = funCPO sigma
+     -> appCPO(funCPO arg
+	           -> pairCPO(notBool 1stCPO(arg), 2ndCPO(arg)),
+               appCPO([[B]],sigma)) .
+
+  eq [[B1 && B2]]
+   = funCPO sigma
+     -> appCPO(funCPO arg1
+	           -> ifCPO(1stCPO(arg1),
+                        appCPO([[B2]],2ndCPO(arg1)),
+                        pairCPO(false,2ndCPO(arg1))),
+               appCPO([[B1]],sigma)) .
+*** </new>
+
+  eq [[{}]] = funCPO sigma -> sigma .
+
+  eq [[{S}]] = funCPO sigma -> appCPO([[S]],sigma) .
+
+*** <new> The following equation also needs to change, to take the
+*** side effects of the arithmetic expression into account
+  eq [[X = A ;]]
+   = funCPO sigma
+     -> appCPO(funCPO arg
+               -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined,
+                        2ndCPO(arg)[1stCPO(arg) / X],
+                        undefined),
+               appCPO([[A]],sigma)) .
+*** </new>
+
+  eq [[S1 S2]] = funCPO sigma -> appCPO([[S2]],appCPO([[S1]],sigma)) .
+
+*** <new> The following equations also need to change, to take the
+*** side effects of the Boolean expressions into account
+  eq [[if (B) S1 else S2]]
+   = funCPO sigma
+     -> appCPO(funCPO arg
+               -> appCPO(ifCPO(1stCPO(arg),[[S1]],[[S2]]),2ndCPO(arg)),
+               appCPO([[B]],sigma)) .
+
+  eq [[while (B) S]]
+   = fixCPO(funCPO alpha
+            -> funCPO sigma
+               -> appCPO(funCPO arg
+                         -> ifCPO(1stCPO(arg),
+						          appCPO(alpha,appCPO([[S]],2ndCPO(arg))),
+								  2ndCPO(arg)),
+					     appCPO([[B]],sigma))) .
+*** </new>
+
+  eq [[(int Xl ; S)]] = appCPO([[S]],(Xl |-> 0)) .
+
+*** <new> The actual denotational semantics of increment
+  eq [[++ X]]
+   = funCPO sigma
+     -> ifCPO(_`(_`)(sigma,X) =/=Bool undefined,
+              pairCPO(_`(_`)(sigma,X) +Int 1, sigma[_`(_`)(sigma,X) +Int 1 / X]),
+              undefined) .
+*** </new>
+
+endm

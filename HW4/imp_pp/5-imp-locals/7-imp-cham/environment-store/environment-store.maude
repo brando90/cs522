@@ -1,0 +1,25 @@
+mod LOCATION is including PL-INT .
+  sort Location .
+  op loc : Int -> Location .
+  op _+Loc_ : Location Int -> Location .
+  var N M : Int .
+  eq loc(N) +Loc M = loc(N +Int M) .
+endm
+
+mod ENVIRONMENT is including PL-ID + LOCATION .
+  sort Environment .
+  op _|->_ : Id Location -> Environment [prec 3] .
+  op .Environment : -> Environment .
+  op _&_ : Environment Environment -> Environment [assoc comm id: .Environment format(d s s d)] .
+  op _[_/_] : Environment Location Id -> Environment [prec 0] .  --- update
+  var Rho : Environment .  var L L' : Location .  var X : Id .
+  eq (Rho &  X |-> L)[L' / X ] = (Rho & X |-> L') .
+  eq Rho[L / X] = (Rho & X |-> L) [owise] .
+endm
+
+mod STORE is including LOCATION + PL-INT .
+  sort Store .
+  op _|->_ : Location Int -> Store [prec 3] .
+  op .Store : -> Store .
+  op _&_ : Store Store -> Store [assoc comm id: .Store format(d s s d)] .
+endm

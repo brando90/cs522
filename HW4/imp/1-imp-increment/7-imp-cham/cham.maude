@@ -1,0 +1,15 @@
+mod CHAM is
+  sorts Molecule Solution Bag{Molecule} .
+  subsort Solution < Molecule < Bag{Molecule} .
+  op empty : -> Bag{Molecule} .
+  op _#_ : Bag{Molecule} Bag{Molecule} -> Bag{Molecule} [assoc comm id: empty] .
+  op {|_|} : Bag{Molecule} -> Solution .
+  op _<|_ : Molecule Solution -> Molecule [prec 110] .
+--- The airlock is unnecessary in this particular example.
+--- We keep it, though, just in case will be needed as we extend the language.
+--- We comment the two airlock rules below out to avoid non-termination.
+--- Otherwise we would have to use slower search commands instead of rewrite.
+---  var M : Molecule .  var Ms : Bag{Molecule} .
+---  rl {| M # Ms |} => {| M <| {| Ms |} |} .
+---  rl {| M <| {| Ms |} |} => {| M # Ms |} .
+endm

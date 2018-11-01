@@ -1,0 +1,43 @@
+in ../../../../builtins.maude
+in ../../imp-syntax.maude
+
+in environment-store.maude
+
+in ../cham
+in ../imp-heating-cooling-cham
+
+search {| X = 3 / (X + 2) ; |} =>! Sol:Solution .
+search {| X = (Y:Id + Z:Id) / (X + 2) ; |} =>! Sol:Solution .
+
+in imp-semantics-cham-environment-store
+
+in ../../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-CHAM + IMP-PROGRAMS .  endm
+
+rewrite {| {| sumPgm |} # {| s |-> loc(0) |} # {| loc(0) |-> 0 |} # {| loc(1) |} |} .
+rewrite {| {| collatzStmt |} # {| n |-> loc(0)  & q |-> loc(1) & r |-> loc(2) & s |-> loc(3) |}
+                             # {| loc(0) |-> 10 & loc(1) |-> 0 & loc(2) |-> 0 & loc(3) |-> 0 |}
+                             # {| loc(4) |} |} .
+rewrite {| {| collatzPgm |} # {| s |-> loc(0) |} # {| loc(0) |-> 0 |} # {| loc(1) |} |} .
+rewrite {| {| multiplicationStmt |} # {| x |-> loc(0)  & y |-> loc(1) & q |-> loc(2) & r |-> loc(3) & z |-> loc(4) |}
+                                    # {| loc(0) |-> 25 & loc(1) |-> 5 & loc(2) |-> 0 & loc(3) |-> 0 & loc(4) |-> 0 |}
+                                    # {| loc(5) |} |} .
+rewrite {| {| primalityStmt |} # {| n |-> loc(0) & i |-> loc(1) & q |-> loc(2) & r |-> loc(3) & t |-> loc(4) & x |-> loc(5) & y |-> loc(6) & z |-> loc(7) |}
+                               # {| loc(0) |-> 1021 & loc(1) |-> 0 & loc(2) |-> 0 & loc(3) |-> 0 & loc(4) |-> 0 & loc(5) |-> 0 & loc(6) |-> 0 & loc(7) |-> 0 |}
+                               # {| loc(8) |} |} .
+rewrite {| {| countPrimesPgm |} # {| s |-> loc(0) |} # {| loc(0) |-> 0 |} # {| loc(1) |} |} .
+
+search  {| {| sumPgm |} # {| s |-> loc(0) |} # {| loc(0) |-> 0 |} # {| loc(1) |} |} =>! Sol:Solution .
+
+*** <new>
+rewrite {| {| int s ; sumPgm |} # {| .Environment |} # {| .Store |} # {| loc(0) |} |} .
+search  {| {| int s ; sumPgm |} # {| .Environment |} # {| .Store |} # {| loc(0) |} |} =>! Sol:Solution .
+
+rewrite {| {| shadow1Stmt |} # {| y |-> loc(0) & z |-> loc(1) |} # {| loc(0) |-> 0 & loc(1) |-> 0 |} # {| loc(2)|} |} .
+search  {| {| shadow1Stmt |} # {| y |-> loc(0) & z |-> loc(1) |} # {| loc(0) |-> 0 & loc(1) |-> 0 |} # {| loc(2)|} |} =>! Sol:Solution .
+rewrite {| {| shadow2Stmt |} # {| y |-> loc(0) & z |-> loc(1) |} # {| loc(0) |-> 0 & loc(1) |-> 0 |} # {| loc(2)|} |} .
+search  {| {| shadow2Stmt |} # {| y |-> loc(0) & z |-> loc(1) |} # {| loc(0) |-> 0 & loc(1) |-> 0 |} # {| loc(2)|} |} =>! Sol:Solution .
+*** </new>
+
+quit

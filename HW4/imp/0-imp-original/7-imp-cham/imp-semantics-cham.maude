@@ -1,0 +1,22 @@
+mod IMP-SEMANTICS-CHAM is including IMP-HEATING-COOLING-CHAM + STATE .
+  subsort Pgm State < Molecule .
+  var X : Id .  var Xl : List{Id} .  var C : Molecule .  var Ms : Bag{Molecule} .
+  var Sigma : State .  var B B2 : BExp .  var I J I1 I2 : Int .  var S S1 S2 : Stmt .
+  rl {| {| X ~> C |} # {| X |-> I & Sigma |} # Ms |}
+  => {| {| I ~> C |} # {| X |-> I & Sigma |} # Ms |} .
+  rl {| (I1 + I2 ~> C) # Ms |} => {| (I1 +Int I2 ~> C) # Ms |} .
+ crl {| (I1 / I2 ~> C) # Ms |} => {| (I1 /Int I2 ~> C) # Ms |} if I2 =/=Bool 0 .
+  rl {| (I1 <= I2 ~> C) # Ms |} => {| (I1 <=Int I2 ~> C) # Ms |} .
+  rl {| (! true ~> C) # Ms |} => {| (false ~> C) # Ms |} .
+  rl {| (! false ~> C) # Ms |} => {| (true ~> C) # Ms |} .
+  rl {| (true && B2 ~> C) # Ms |} => {| (B2 ~> C) # Ms |} .
+  rl {| (false && B2 ~> C) # Ms |} => {| (false ~> C) # Ms |} .
+  rl {| ({S} ~> C) # Ms |} => {| (S ~> C) # Ms |} .
+  rl {| {| X = I ; ~> C |} # {| X |-> J & Sigma |} # Ms |}
+  => {| {| {} ~> C |} # {| X |-> I & Sigma |} # Ms |} .
+  rl {| ({} S2 ~> C) # Ms |} => {| (S2 ~> C) # Ms |} .
+  rl {| (if (true) S1 else S2 ~> C) # Ms |} => {| (S1 ~> C) # Ms |} .
+  rl {| (if (false) S1 else S2 ~> C) # Ms |} => {| (S2 ~> C) # Ms |} .
+  rl {| (while (B) S ~> C) # Ms |} => {| (if (B) {S while (B) S} else {} ~> C) # Ms |} .
+  rl {| (int Xl ; S) # Ms |} => {| {| S |} # {| Xl |-> 0 |} # Ms |} .
+endm

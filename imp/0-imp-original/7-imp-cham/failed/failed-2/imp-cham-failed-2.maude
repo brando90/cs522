@@ -1,0 +1,18 @@
+in ../../../../../builtins.maude
+
+in ../cham
+in ../imp-cham-syntax
+in imp-heating-cooling-cham-failed-2
+
+--- It gives us what we want:
+search[1] {| 3 / (1 + 2) |} =>* {| 1 # {| ([] + 2) # {| 3 / [] |} |} |} .
+search[1] {| (3 / 1) + 2 |} =>* {| 1 # {| (3 / []) # {| [] + 2 |} |} |} .
+
+--- But it also gives us what we do not want:
+search[1] {| 3 / (1 + 2) |} =>* {| 1 # {| [] + 2 |} # {| 3 / [] |} |} .
+search[1] {| 1 # {| [] + 2 |} # {| 3 / [] |} |} =>* {| 3 / (1 + 2) |} .
+
+search[1] {| (3 / 1) + 2 |} =>* {| 1 # {| [] + 2 |} # {| 3 / [] |} |} .
+search[1] {| 1 # {| [] + 2 |} # {| 3 / [] |} |} =>* {| (3 / 1) + 2 |} .
+
+quit

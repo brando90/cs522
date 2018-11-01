@@ -1,0 +1,30 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+in imp-semantics-msos
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-MSOS + IMP-PROGRAMS .  endm
+
+rewrite * < sumPgm, state = s |-> 0 > .
+rewrite * < collatzStmt, state = (n |-> 10 & (q,r,s) |-> 0) > .
+rewrite * < collatzPgm, state = s |-> 0 > .
+rewrite * < multiplicationStmt, state = (x |-> 25 & y |-> 5 & z |-> 0) > .
+rewrite * < primalityStmt, state = (n |-> 1021 & t |-> 0) > .
+rewrite * < countPrimesPgm, state = s |-> 0 > .
+
+search * < sumPgm, state = s |-> 0 > =>! Cfg:ExtendedConfiguration .
+
+*** <new>
+rewrite * < int s ; sumPgm > .
+search  * < int s ; sumPgm > =>! Cfg:ExtendedConfiguration .
+
+rewrite * < shadow1Stmt, state = (y,z) |-> 0 > .
+search  * < shadow1Stmt, state = (y,z) |-> 0 > =>! Cfg:ExtendedConfiguration .
+rewrite * < shadow2Stmt, state = (y,z) |-> 0 > .
+search  * < shadow2Stmt, state = (y,z) |-> 0 > =>! Cfg:ExtendedConfiguration .
+*** </new>
+
+quit

@@ -1,0 +1,11 @@
+mod CHAM is
+  sorts Molecule Solution Bag{Molecule} .
+  subsort Solution < Molecule < Bag{Molecule} .
+  op empty : -> Bag{Molecule} .
+  op _#_ : Bag{Molecule} Bag{Molecule} -> Bag{Molecule} [assoc comm id: empty] .
+  op {|_|} : Bag{Molecule} -> Solution .
+  op _<|_ : Molecule Solution -> Molecule [prec 110] .
+  var M : Molecule .  var Ms : Bag{Molecule} .
+  rl {| M # Ms |} => {| M <| {| Ms |} |} .
+  rl {| M <| {| Ms |} |} => {| M # Ms |} .
+endm

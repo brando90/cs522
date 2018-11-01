@@ -1,0 +1,36 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+in cham
+in imp-heating-cooling-cham
+
+search {| X = 3 / (X + 2) ; |} =>! Sol:Solution .
+search {| X = (Y:Id + Z:Id) / (X + 2) ; |} =>! Sol:Solution .
+
+in imp-semantics-cham
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-CHAM + IMP-PROGRAMS .  endm
+
+rewrite {| {| sumPgm |} # {| s |-> 0 |} |} .
+rewrite {| {| collatzStmt |} # {| n |-> 10 & (q,r,s) |-> 0 |} |} .
+rewrite {| {| collatzPgm |} # {| s |-> 0 |} |} .
+rewrite {| {| multiplicationStmt |} # {| x |-> 25 & y |-> 5 & (q,r,z) |-> 0 |} |} .
+rewrite {| {| primalityStmt |} # {| n |-> 1021 & (i,q,r,t,x,y,z) |-> 0 |} |} .
+rewrite {| {| countPrimesPgm |} # {| s |-> 0 |} |} .
+
+search {| {| sumPgm |} # {| s |-> 0 |} |} =>! Sol:Solution .
+
+*** <new>
+rewrite {| {| int s ; sumPgm |} # {| .State |} |} .
+search  {| {| int s ; sumPgm |} # {| .State |} |} =>! Sol:Solution .
+
+rewrite {| {| shadow1Stmt |} # {| (y,z) |-> 0 |} |} .
+search  {| {| shadow1Stmt |} # {| (y,z) |-> 0 |} |} =>! Sol:Solution .
+rewrite {| {| shadow2Stmt |} # {| (y,z) |-> 0 |} |} .
+search  {| {| shadow2Stmt |} # {| (y,z) |-> 0 |} |} =>! Sol:Solution .
+*** </new>
+
+quit

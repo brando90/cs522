@@ -1,0 +1,9 @@
+mod IMP-CHAM-SYNTAX is including PL-INT + CHAM .
+  subsort Int < Molecule .
+--- Define all the IMP constructs as molecule constructs
+  op _+_ : Molecule Molecule -> Molecule [prec 33 gather (E e) format (d b o d)] .
+  op _/_ : Molecule Molecule -> Molecule [prec 31 gather (E e) format (d b o d)] .
+--- ... and so on
+--- Add the hole as basic molecular construct, to allow for building contexts as molecules
+  op [] : -> Molecule .
+endm

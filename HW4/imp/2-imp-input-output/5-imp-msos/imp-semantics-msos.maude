@@ -1,0 +1,82 @@
+mod IMP-CONFIGURATIONS-MSOS is including IMP-SYNTAX + STATE .   
+
+*** <new> Include the module BUFFER as well
+  including BUFFER .
+*** </new>
+
+  sorts Attribute Record Configuration ExtendedConfiguration .
+  subsort Attribute < Record .
+  subsort Configuration < ExtendedConfiguration .
+  op empty : -> Record .
+  op _,_ : Record Record -> Record [assoc comm id: empty] .
+  op state`=_ : State -> Attribute .
+
+*** <new> Add new attributes in the label records to hold the input/output buffers
+  op input`=_  : Buffer -> Attribute [gather(&)] .  --- gather attribute only for parsing reasons
+  op output`=_ : Buffer -> Attribute [gather(&)] .
+*** </new>
+
+  op <_,_> : AExp Record -> Configuration .
+  op <_,_> : BExp Record -> Configuration .
+  op <_,_> : Stmt Record -> Configuration .
+
+*** <new> Modify the initial configurations to also hold an input buffer
+  op <_,_> : Pgm Buffer -> Configuration .
+*** </new>
+
+  op o_ : Configuration -> ExtendedConfiguration [prec 80] .   --- one step
+  op *_ : Configuration -> ExtendedConfiguration [prec 80] .   --- all steps
+  var Cfg Cfg' : Configuration .
+ crl * Cfg => * Cfg' if o Cfg => Cfg' .
+endm
+
+mod IMP-SEMANTICS-MSOS is including IMP-CONFIGURATIONS-MSOS .
+  var X : Id .   var R R' : Record . var Sigma Sigma' : State .
+  var I I1 I2 : Int .  var Xl : List{Id} .  var S S1 S1' S2 : Stmt .
+  var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 B2' : BExp .
+
+ crl o < X,(state = Sigma, R) > => < Sigma(X),(state = Sigma, R) >
+  if Sigma(X) =/=Bool undefined .
+ crl o < A1 + A2,R > => < A1' + A2,R' > if o < A1,R > => < A1',R' > .
+ crl o < A1 + A2,R > => < A1 + A2',R' > if o < A2,R > => < A2',R' > .
+  rl o < I1 + I2,R > => < I1 +Int I2,R > .
+ crl o < A1 / A2,R > => < A1' / A2,R' > if o < A1,R > => < A1',R' > .
+ crl o < A1 / A2,R > => < A1 / A2',R' > if o < A2,R > => < A2',R' > .
+ crl o < I1 / I2,R > => < I1 /Int I2,R > if I2 =/=Bool 0 .
+ crl o < A1 <= A2,R > => < A1' <= A2,R' > if o < A1,R > => < A1',R' > .
+ crl o < I1 <= A2,R > => < I1 <= A2',R' > if o < A2,R > => < A2',R' > .
+  rl o < I1 <= I2,R > => < I1 <=Int I2,R > .
+ crl o < ! B,R > => < ! B',R' > if o < B,R > => < B',R' > .
+  rl o < ! true,R > => < false,R > .
+  rl o < ! false,R > => < true,R > .
+ crl o < B1 && B2,R > => < B1' && B2,R' > if o < B1,R > => < B1',R' > .
+  rl o < false && B2,R > => < false,R > .
+  rl o < true && B2,R > => < B2,R > .
+  rl o < {S}, R > => < S,R > .
+ crl o < X = A ;,R > => < X = A' ;,R' > if o < A,R > => < A',R' > .
+ crl o < X = I ;,(state = Sigma, R) > => < {},(state = Sigma[I / X], R) >
+  if Sigma(X) =/=Bool undefined .
+ crl o < S1 S2,R > => < S1' S2,R' > if o < S1,R > => < S1',R' > .
+  rl o < {} S2,R > => < S2,R > .
+ crl o < if (B) S1 else S2,R > => < if (B') S1 else S2,R' > if o < B,R > => < B',R'  > .
+  rl o < if (true) S1 else S2,R > => < S1,R > .
+  rl o < if (false) S1 else S2,R > => < S2,R > .
+  rl o < while (B) S,R > => < if (B) {S while (B) S} else {},R > .
+
+*** <new> The rule below is not good enough anymore.
+*** It will be changed below to initialize all the attributes.
+---  rl o < int Xl ; S > => < S,(state = Xl |-> 0) > .
+*** </new>
+
+*** <new> Modify the rule for programs to initialize the state to one also including the input/output
+  rl o < int Xl ; S,OmegaIn > => < S,(state = Xl |-> 0, input = OmegaIn, output = epsilon) > .
+*** </new>
+
+*** <new> Add the actual MSOS of input/output
+  var OmegaIn OmegaOut : Buffer .
+  rl o < read(),(input = I : OmegaIn, R) > => < I,(input = OmegaIn, R) > .
+ crl o < print(A);,R > => < print(A');,R' > if o < A,R > => < A',R' > .
+  rl o < print(I);,(output = OmegaOut, R) > => < {},(output = (OmegaOut : I), R) > .
+*** </new>
+
+endm

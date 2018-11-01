@@ -1,0 +1,33 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+*** <new> Including the input/output buffer
+in ../buffer.maude
+*** </new>
+
+in imp-semantics-msos
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-MSOS + IMP-PROGRAMS .  endm
+
+rewrite * < sumPgm, epsilon > .
+rewrite * < collatzStmt, state = (n |-> 10 & (q,r,s) |-> 0), input = epsilon, output = epsilon > .
+rewrite * < collatzPgm, epsilon > .
+rewrite * < multiplicationStmt, state = (x |-> 25 & y |-> 5 & (q,r,z) |-> 0), input = epsilon, output = epsilon > .
+rewrite * < primalityStmt, state = (n |-> 1021 & (i,q,r,t,x,y,z) |-> 0), input = epsilon, output = epsilon > .
+rewrite * < countPrimesPgm, epsilon > .
+
+search  * < sumPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+*** <new> Execute the new programs
+rewrite * < sumIOPgm, 100 > .
+search  * < sumIOPgm, 100 > =>! Cfg:ExtendedConfiguration .
+rewrite * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > .
+search  * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > =>! Cfg:ExtendedConfiguration .
+rewrite * < nondetIOStmt, state = .State, input = 10 : 20 : 30, output = epsilon > .
+search  * < nondetIOStmt, state = .State, input = 10 : 20 : 30, output = epsilon > =>! Cfg:ExtendedConfiguration .
+*** </new>
+
+quit

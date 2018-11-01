@@ -1,0 +1,43 @@
+in ../../../builtins.maude
+in ../imp-syntax.maude
+in ../../state.maude
+
+*** <new> Including the input/output buffer
+in ../buffer.maude
+*** </new>
+
+in imp-split-plug-evaluation-contexts
+
+search split(3 <= (2 + X) / 7) =>! Syn:[Syntax] .
+
+--- Below we show the three different ways to represent the reduction semantics
+--- with evaluation contexts of IMP into rewrite logic.
+--- Include which one of them you want.
+
+---in imp-semantics-evaluation-contexts-1
+---in imp-semantics-evaluation-contexts-2
+in imp-semantics-evaluation-contexts-3
+
+in ../imp-programs.maude
+
+mod TEST is including IMP-SEMANTICS-EVALUATION-CONTEXTS + IMP-PROGRAMS .  endm
+
+rewrite * < sumPgm, epsilon > .
+rewrite * < collatzStmt, n |-> 10 & (q,r,s) |-> 0, epsilon, epsilon > .
+rewrite * < collatzPgm, epsilon > .
+rewrite * < multiplicationStmt, x |-> 25 & y |-> 5 & (q,r,z) |-> 0, epsilon, epsilon > .
+rewrite * < primalityStmt, n |-> 1021 & (i,q,r,t,x,y,z) |-> 0, epsilon, epsilon > .
+rewrite * < countPrimesPgm, epsilon > .
+
+search  * < sumPgm, epsilon > =>! Cfg:ExtendedConfiguration .
+
+*** <new> Execute the new programs
+rewrite * < sumIOPgm, 100 > .
+search  * < sumIOPgm, 100 > =>! Cfg:ExtendedConfiguration .
+rewrite * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > .
+search  * < whileIOPgm, 10 : 1 : 17 : 2 : 21 : 3 : 0 : 5 : 8 : -2 : -5 : 10 > =>! Cfg:ExtendedConfiguration .
+rewrite * < nondetIOStmt, .State, 10 : 20 : 30, epsilon > .
+search  * < nondetIOStmt, .State, 10 : 20 : 30, epsilon > =>! Cfg:ExtendedConfiguration .
+*** </new>
+
+quit

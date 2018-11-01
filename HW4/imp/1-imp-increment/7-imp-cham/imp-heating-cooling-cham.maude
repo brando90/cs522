@@ -1,0 +1,52 @@
+mod IMP-HEATING-COOLING-CHAM is including IMP-SYNTAX + CHAM .
+  sorts Hole ResultAExp ResultBExp ResultStmt Result .
+  subsorts Hole < AExp BExp Stmt < Molecule .
+  subsorts ResultAExp ResultBExp ResultStmt < Result < Molecule .
+  subsorts Int < ResultAExp < AExp .
+  subsorts Bool < ResultBExp < BExp .
+  subsorts ResultStmt < Block .
+  op {} : -> ResultStmt [ditto] .
+
+  op [] : -> Hole .
+  op _~>_ : Molecule Molecule -> Molecule [gather(e E) prec 120] .
+
+  var X : Id .  var C : [Molecule] .  var A A1 A2 : AExp .  var R R1 R2 : Result .
+  var B B1 B2 : BExp .  var I I1 I2 : Int .  var S S1 S2 : Stmt .  var Ms : Bag{Molecule} .
+
+ crl {| (A1 + A2 ~> C) # Ms |} => {| (A1 ~> [] + A2 ~> C) # Ms |} if notBool(A1 :: Result) .
+  rl {| (R1 ~> [] + A2 ~> C) # Ms |} => {| (R1 + A2 ~> C) # Ms |} .
+
+ crl {| (A1 + A2 ~> C) # Ms |} => {| (A2 ~> A1 + [] ~> C) # Ms |} if notBool(A2 :: Result) .
+  rl {| (R2 ~> A1 + [] ~> C) # Ms |} => {| (A1 + R2 ~> C) # Ms |} .
+
+ crl {| (A1 / A2 ~> C) # Ms |} => {| (A1 ~> [] / A2 ~> C) # Ms |} if notBool(A1 :: Result) .
+  rl {| (R1 ~> [] / A2 ~> C) # Ms |} => {| (R1 / A2 ~> C) # Ms |} .
+
+ crl {| (A1 / A2 ~> C) # Ms |} => {| (A2 ~> A1 / [] ~> C) # Ms |} if notBool(A2 :: Result) .
+  rl {| (R2 ~> A1 / [] ~> C) # Ms |} => {| (A1 / R2 ~> C) # Ms |} .
+
+ crl {| (A1 <= A2 ~> C) # Ms |} => {| (A1 ~> [] <= A2 ~> C) # Ms |} if notBool(A1 :: Result) .
+  rl {| (R1 ~> [] <= A2 ~> C) # Ms |} => {| (R1 <= A2 ~> C) # Ms |} .
+
+ crl {| (R1 <= A2 ~> C) # Ms |} => {| (A2 ~> R1 <= [] ~> C) # Ms |} if notBool(A2 :: Result) .
+  rl {| (R2 ~> R1 <= [] ~> C) # Ms |} => {| (R1 <= R2 ~> C) # Ms |} .
+
+ crl {| (! B ~> C) # Ms |} => {| (B ~> ! [] ~> C) # Ms |} if notBool(B :: Result) .
+  rl {| (R ~> ! [] ~> C) # Ms |} => {| (! R ~> C) # Ms |} .
+
+ crl {| (B1 && B2 ~> C) # Ms |} => {| (B1 ~> [] && B2 ~> C) # Ms |} if notBool(B1 :: Result) .
+  rl {| (R1 ~> [] && B2 ~> C) # Ms |} => {| (R1 && B2 ~> C) # Ms |} .
+
+ crl {| (X = A ; ~> C) # Ms |} => {| (A ~> X = [] ; ~> C) # Ms |} if notBool(A :: Result) .
+  rl {| (R ~> X = [] ; ~> C) # Ms |} => {| (X = R ; ~> C) # Ms |} .
+
+ crl {| (S1 S2 ~> C) # Ms |} => {| (S1 ~> [] S2 ~> C) # Ms |} if notBool(S1 :: Result) .
+  rl {| (R1 ~> [] S2 ~> C) # Ms |} => {| (R1 S2 ~> C) # Ms |} .
+
+ crl {| S # Ms |} => {| (S ~> []) # Ms |} if notBool(S :: Result) .
+  rl {| (R ~> []) # Ms |} => {| R # Ms |} .
+
+ crl {| (if (B) S1 else S2 ~> C) # Ms |} => {| (B ~> if ([]) S1 else S2 ~> C) # Ms |}
+  if notBool(B :: Result) .
+  rl {| (R ~> if ([]) S1 else S2 ~> C) # Ms |} => {| (if (R) S1 else S2 ~> C) # Ms |} .
+endm

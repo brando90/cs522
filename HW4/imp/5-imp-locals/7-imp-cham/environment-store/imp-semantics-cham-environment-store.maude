@@ -1,0 +1,50 @@
+mod IMP-SEMANTICS-CHAM is including IMP-HEATING-COOLING-CHAM + ENVIRONMENT + STORE .
+*** <new> Added Environmments, Stores and Locations as molecules.
+*** However, due to parsing issues, we prefered instead to consider them
+*** molecules "in principle", but not subsort them to Molecule.  Instead,
+*** we have to define membranes over them to build solutions.
+---  subsort Environment Store Location < Molecule .
+  op {|_|} : Environment -> Solution .
+  op {|_|} : Store -> Solution .
+  op {|_|} : Location -> Solution .
+*** </new>
+
+  var X : Id .  var C : Molecule .  var Ms : Bag{Molecule} .  var L : Location .
+  var Rho Rho' : Environment .  var Mu : Store .  var B B2 : BExp .  var I J I1 I2 : Int .  var S S1 S2 : Stmt .
+
+*** <new> Modified this rule to work with environment/store instead of state
+  rl {| {| X ~> C |} # {| X |-> L & Rho |} # {| L |-> I & Mu |} # Ms |} => {| {| I ~> C |} # {| X |-> L & Rho |} # {| L |-> I & Mu |} # Ms |} .
+*** </new>
+
+  rl {| (I1 + I2 ~> C) # Ms |} => {| (I1 +Int I2 ~> C) # Ms |} .
+ crl {| (I1 / I2 ~> C) # Ms |} => {| (I1 /Int I2 ~> C) # Ms |} if I2 =/=Bool 0 .
+  rl {| (I1 <= I2 ~> C) # Ms |} => {| (I1 <=Int I2 ~> C) # Ms |} .
+  rl {| (! true ~> C) # Ms |} => {| (false ~> C) # Ms |} .
+  rl {| (! false ~> C) # Ms |} => {| (true ~> C) # Ms |} .
+  rl {| (true && B2 ~> C) # Ms |} => {| (B2 ~> C) # Ms |} .
+  rl {| (false && B2 ~> C) # Ms |} => {| (false ~> C) # Ms |} .
+  rl {| ({S} ~> C) # Ms |} => {| (S ~> C) # Ms |} .
+
+*** <new> Modified this rule to work with environment/store instead of state
+  rl {| {| X = I ; ~> C |} # {| X |-> L & Rho |} # {| L |-> J & Mu |} # Ms |} => {| {| {} ~> C |} # {| X |-> L & Rho |} # {| L |-> I & Mu |} # Ms |} .
+*** </new>
+  
+  rl {| ({} S2 ~> C) # Ms |} => {| (S2 ~> C) # Ms |} .
+  rl {| (if (true) S1 else S2 ~> C) # Ms |} => {| (S1 ~> C) # Ms |} .
+  rl {| (if (false) S1 else S2 ~> C) # Ms |} => {| (S2 ~> C) # Ms |} .
+  rl {| (while (B) S ~> C) # Ms |} => {| (if (B) {S while (B) S} else {} ~> C) # Ms |} .
+
+*** <new> The rule below is wrong now, we are going to replace it below:
+---  rl {| (int Xl ; S) # Ms |} => {| {| S |} # {| Xl |-> 0 |} # Ms |} .
+*** </new>
+
+*** <new> Added the actual semantics of let.
+*** Note that a fresh location is created in the store.
+*** Also, an environment recovery molecule construct is added.
+  op env : Environment -> Molecule .
+  rl {| {| let X = I in S ~> C |} # {| Rho |} # {| Mu |} # {| L |} # Ms |}
+  => {| {| S ~> env(Rho) ~> C |} # {| Rho[L / X] |} # {| L |-> I & Mu |} # {| L +Loc 1 |} # Ms |} .
+  rl {| {| {} ~> env(Rho) ~> C |} # {| Rho' |} # Ms |} => {| {| {} ~> C |} # {| Rho |} # Ms |} .  --- environment recovery
+*** </new>
+
+endm

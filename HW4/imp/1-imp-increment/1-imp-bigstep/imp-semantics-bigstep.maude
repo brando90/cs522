@@ -1,0 +1,86 @@
+mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-SYNTAX + STATE .
+  sort Configuration .
+  op <_,_> : AExp State -> Configuration .
+  op <_,_> : BExp State -> Configuration .
+
+*** <new> The result configurations for expressions need to also hold a state,
+*** this way falling as special cases of the more general configurations above.
+*** Thus, we simply comment out the previous result configuration constructs below:
+***  op   <_> : Int -> Configuration .
+***  op   <_> : Bool -> Configuration .
+*** </new>
+
+  op <_,_> : Stmt State -> Configuration .
+  op   <_> : State -> Configuration .
+  op   <_> : Pgm -> Configuration .
+endm
+
+mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
+  var X : Id .  var Xl : List{Id} .  var Sigma Sigma' Sigma'' Sigma1 Sigma2 : State .
+  var I I1 I2 : Int .  var T : Bool .
+  var A A1 A2 : AExp .  var B B1 B2 : BExp .  var S S1 S2 : Stmt .
+
+*** <new> The normal big-step SOS rule would be the one below,
+*** but it is useless and leads to non-termination, so we comment it out.
+***  rl < I,Sigma > => < I,Sigma > .
+*** </new>
+
+*** <new> All rules involving expressions need to change to account
+*** for the new result configurations.  Also, new rules are added
+*** attempting to capture the non-deterministic evaluation strategy.
+ crl < X,Sigma > => < Sigma(X),Sigma >
+  if Sigma(X) =/=Bool undefined .
+ crl < A1 + A2,Sigma > => < I1 +Int I2,Sigma2 > 
+  if < A1,Sigma > => < I1,Sigma1 > /\ < A2,Sigma1 > => < I2,Sigma2 > .
+*** <new-rule>
+ crl < A1 + A2,Sigma > => < I1 +Int I2,Sigma1 >
+  if < A2,Sigma > => < I2,Sigma2 > /\ < A1,Sigma2 > => < I1,Sigma1 > .
+*** </new-rule>
+ crl < A1 / A2,Sigma > => < I1 /Int I2,Sigma2 >
+  if < A1,Sigma > => < I1,Sigma1 > /\ < A2,Sigma1 > => < I2,Sigma2 > /\ I2 =/=Bool 0 .
+*** <new-rule>
+ crl < A1 / A2,Sigma > => < I1 /Int I2,Sigma1 >
+  if < A2,Sigma > => < I2,Sigma2 > /\ < A1,Sigma2 > => < I1,Sigma1 > /\ I2 =/=Bool 0 .
+*** </new-rule>
+*** </new>
+
+*** <new> Like for the integers above, the following rule needs to also be commented out:
+***  rl < T,Sigma > => < T,Sigma > .
+*** </new>
+ crl < A1 <= A2,Sigma > => < I1 <=Int I2,Sigma2 > 
+  if < A1,Sigma > => < I1,Sigma1 > /\ < A2,Sigma1 > => < I2,Sigma2 > .
+ crl < ! B,Sigma > => < false,Sigma' > 
+  if < B,Sigma > => <  true,Sigma' > .
+ crl < ! B,Sigma > => <  true,Sigma' > 
+  if < B,Sigma > => < false,Sigma' > .
+ crl < B1 && B2,Sigma > => < false,Sigma1 > 
+  if < B1,Sigma > => < false,Sigma1 > .
+ crl < B1 && B2,Sigma > => < T,Sigma2 > 
+  if < B1,Sigma > => < true,Sigma1 > /\ < B2,Sigma1 > => < T,Sigma2 > .
+
+  rl < {},Sigma > => < Sigma > .
+ crl < {S},Sigma > => < Sigma' >
+  if < S,Sigma > => < Sigma' > .
+ crl < X = A ;,Sigma > => < Sigma'[I / X] >
+  if < A,Sigma > => < I,Sigma' > /\ Sigma(X) =/=Bool undefined .
+ crl < S1 S2,Sigma > => < Sigma2 >
+  if < S1,Sigma > => < Sigma1 > /\ < S2,Sigma1 > => < Sigma2 > .
+ crl < if (B) S1 else S2,Sigma > => < Sigma1 > 
+  if < B,Sigma > => < true,Sigma'  > /\ < S1,Sigma' > => < Sigma1 > .
+ crl < if (B) S1 else S2,Sigma > => < Sigma2 > 
+  if < B,Sigma > => < false,Sigma' > /\ < S2,Sigma' > => < Sigma2 > .
+ crl < while (B) S,Sigma > => < Sigma' >
+  if < B,Sigma > => < false,Sigma' > .
+ crl < while (B) S,Sigma > => < Sigma'' > 
+  if < B,Sigma > => < true,Sigma' > /\ < S while (B) S,Sigma' > => < Sigma'' > .
+*** </new>
+
+ crl < int Xl ; S > => < Sigma >
+  if < S,(Xl |-> 0) > => < Sigma > .
+
+*** <new> The actual big-step SOS of increment
+ crl < ++ X,Sigma > => < Sigma(X) +Int 1,Sigma[(Sigma(X) +Int 1) / X] >
+  if Sigma(X) =/=Bool undefined .
+*** </new>
+
+endm

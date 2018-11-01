@@ -1,0 +1,49 @@
+mod IMP-SYNTAX is including PL-INT + PL-BOOL + PL-ID .
+--- AExp
+  sort AExp .  subsorts Int Id < AExp .
+  op _+_ : AExp AExp -> AExp [prec 33 gather (E e) format (d b o d)] .
+  op _/_ : AExp AExp -> AExp [prec 31 gather (E e) format (d b o d)] .
+--- BExp
+  sort BExp .  subsort Bool < BExp .
+  op _<=_ : AExp AExp -> BExp  [prec 37 format (d b o d)] .
+  op !_ : BExp -> BExp [prec 53 format (b o d)] .
+  op _&&_ : BExp BExp -> BExp [prec 55 gather (E e) format (d b o d)] .
+--- Block and Stmt
+  sorts Block Stmt .  subsort Block < Stmt .
+  op {} : -> Block [format (b b o)] .
+  op {_} : Stmt -> Block [format (d n++i n--i d)] .
+  op _=_; : Id AExp -> Stmt [prec 40 format (d b o b o)] .
+  op __ : Stmt Stmt -> Stmt [prec 60 gather (e E) format (d ni d)] .
+  op if(_)_else_ : BExp Block Block -> Stmt [prec 59 format (b so d d s nib o d)] .
+  op while(_)_ : BExp Block -> Stmt [prec 59 format (b so d d s d)] .
+--- Pgm
+  sort Pgm .
+---  op int_;_ : List{Id} Stmt -> Pgm [prec 70 format (nb o d ni d)] .
+
+*** <new> Remove the previous global variable declarations (see above)
+*** and instead subsort Stmt to Pgm
+  subsort Stmt < Pgm .
+*** </new>
+
+*** <new> Add syntax for local variable declarations 
+  op int_; : List{Id} -> Stmt .
+*** </new>
+
+endm
+
+*** <new> Add the following module
+mod IMP-DESUGARED-SYNTAX is including IMP-SYNTAX .
+--- This module desugars local variables and blocks into one simple
+--- and uniform let statement of the form "let X = AExp in Stmt".
+--- This desugaring is typically done at parse time; since we don't
+--- have a parser, we do it using Maude's equations; to keep it simple,
+--- we rely on the fact that Maude applies equations in order.
+  op let_=_in_ : Id AExp Stmt -> Stmt .
+  var X Y : Id . var L : List{Id} .  var S S1 S2 S3 : Stmt .
+  eq (S1 S2) S3 = S1 (S2 S3) .              --- first put all parentheses to the right
+  eq int L,X ; S = int L ; let X = 0 in S . --- then desugar variable declarations into let
+  eq int .List{Id} ; S = S .
+  eq S int L ; = S .                        --- then eliminate remaining variable declarations at the end of blocks
+  eq {int L ;} = {} .
+endm
+*** </new>

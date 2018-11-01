@@ -1,0 +1,64 @@
+mod IMP-CONFIGURATIONS-EVALUATION-CONTEXTS is including IMP-DESUGARED-SYNTAX .
+  sorts Configuration ExtendedConfiguration .
+  subsort Configuration < ExtendedConfiguration .
+*** <new> Configurations are just programs now
+  subsort Pgm < Configuration .
+*** </new>
+  ops (o_) (*_) : Configuration -> ExtendedConfiguration [prec 80] .   --- one step
+  var Cfg Cfg' : Configuration .
+ crl * Cfg => * Cfg' if o Cfg => Cfg' .
+endm
+
+mod IMP-SPLIT-PLUG-EVALUATION-CONTEXTS is including IMP-CONFIGURATIONS-EVALUATION-CONTEXTS .
+  sorts Syntax Context .  subsorts AExp BExp Stmt Configuration < Syntax .
+  op [] : -> Context .  op _[_] : Context Syntax -> [Syntax] [prec 1] .
+  ops split plug : Syntax -> Syntax . --- to split Syntax into context[redex]
+
+  var X : Id .  var A A1 A2 : AExp .  var B B1 B2 : BExp .  var S S1 S2 : Stmt .
+  var I I1 : Int .  var Syn : Syntax .  var C : Context .
+
+  rl split(Syn) => [][Syn] .  eq plug([][Syn]) = Syn .  eq plug(Syn) = Syn .
+
+  op _+_ : Context AExp -> Context .  eq plug((C + A2)[Syn]) = plug(C[Syn]) + A2 .
+ crl split(A1 + A2) => (C + A2)[Syn] if split(A1) => C[Syn] .
+  op _+_ : AExp Context -> Context .  eq plug((A1 + C)[Syn]) = A1 + plug(C[Syn]) .
+ crl split(A1 + A2) => (A1 + C)[Syn] if split(A2) => C[Syn] .
+
+  op _/_ : Context AExp -> Context .  eq plug((C / A2)[Syn]) = plug(C[Syn]) / A2 .
+ crl split(A1 / A2) => (C / A2)[Syn] if split(A1) => C[Syn] .
+  op _/_ : AExp Context -> Context .  eq plug((A1 / C)[Syn]) = A1 / plug(C[Syn]) .
+ crl split(A1 / A2) => (A1 / C)[Syn] if split(A2) => C[Syn] .
+
+  op _<=_ : Context AExp -> Context .  eq plug((C <= A2)[Syn]) = plug(C[Syn]) <= A2 .
+ crl split(A1 <= A2) => (C <= A2)[Syn] if split(A1) => C[Syn] .
+  op _<=_ : Int Context -> Context .  eq plug((I1 <= C)[Syn]) = I1 <= plug(C[Syn]) .
+ crl split(I1 <= A2) => (I1 <= C)[Syn] if split(A2) => C[Syn] .
+
+  op !_ : Context -> Context .  eq plug((! C)[Syn]) = ! plug(C[Syn]) .
+ crl split(! B) => (! C)[Syn] if split(B) => C[Syn] .
+
+  op _&&_ : Context BExp -> Context .  eq plug((C && B2)[Syn]) = plug(C[Syn]) && B2 .
+ crl split(B1 && B2) => (C && B2)[Syn] if split(B1) => C[Syn] .
+
+  op _=_; : Id Context -> Context .  eq plug((X = C ;)[Syn]) = X = plug(C[Syn]) ; .
+ crl split(X = A ;) => (X = C ;)[Syn] if split(A) => C[Syn] .
+
+  op __ : Context Stmt -> Context .  eq plug((C S2)[Syn]) = plug(C[Syn]) S2 .
+ crl split(S1 S2) => (C S2)[Syn] if split(S1) => C[Syn] .
+
+  op if(_)_else_ : Context Stmt Stmt -> Context .
+ crl split(if (B) S1 else S2) => (if (C) S1 else S2)[Syn] if split(B) => C[Syn] .
+  eq plug((if (C) S1 else S2)[Syn]) = if (plug(C[Syn])) S1 else S2 .
+
+*** <new> Splitting/plugging rules/equations for let
+*** First, ones allowing to evaluate the binding expression
+  op let_=_in_ : Id Context Stmt -> Context .
+ crl split(let X = A in S) => (let X = C in S)[Syn] if split(A) => C[Syn] .
+  eq plug((let X = C in S)[Syn]) = let X = plug(C[Syn]) in S .
+*** Second, ones allowing to evaluate the body once the binding expression is evaluated
+  op let_=_in_ : Id Int Context -> Context .
+ crl split(let X = I in S) => (let X = I in C)[Syn] if split(S) => C[Syn] .
+  eq plug((let X = I in C)[Syn]) = let X = I in plug(C[Syn]) .
+*** </new>
+
+endm

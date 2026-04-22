@@ -1,3 +1,37 @@
+--- ============================================================================
+--- CS522 HW2 / Exercise 83 (p. 169) — denotational semantics with *silent*
+--- division-by-zero failure.
+---
+--- Baseline: the original denotational semantics in Figure 3.20 of Grigore
+--- Roșu's "Programming Language Semantics" returns `undefined` (bottom) on
+--- division-by-zero and propagates that bottom upward — making the semantics
+--- partial. The exercise asks for a variant in which programs **fail
+--- silently**: every program terminates with a State, and division-by-zero
+--- merely "scars" the resulting state with a reserved `err` variable marker.
+---
+--- The pristine, pre-exercise version lives in
+---   imp-semantics-denotational_original.maude
+--- and can be diffed against this one to see exactly the Ex. 83 additions.
+---
+--- Design:
+---   - Add `Error : -> State` (as in HW1 big-step) — a distinguished State
+---     constant used as a pure-error configuration at the *arithmetic/boolean*
+---     level. Anything lifted into `Error` propagates through `+`, `/`,
+---     `<=`, `!`, `&&`.
+---   - Add `err : -> Id` — a reserved identifier that is **never declared by
+---     the user** and is used by the statement-level equations as a
+---     "silent-failure" flag: whenever an AExp/BExp yields `Error` inside
+---     a Stmt, the Stmt's output state becomes `sigma & err |-> 1`.
+---   - Sequencing `S1 S2` short-circuits on the err flag: if `[[S1]](sigma)`
+---     has `err |-> 1`, return it unchanged (S2 is skipped).
+---   - The while-functional respects the err flag both on guard evaluation
+---     and on a single iteration's body.
+---
+--- Net: `[[_]]` becomes total on Pgm/Stmt, partial only at AExp/BExp level
+--- (via the Error propagation), and the final State reports success-or-failure
+--- via the err flag.
+--- ============================================================================
+
 mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   sort Syntax .
   subsorts AExp BExp Stmt Pgm < Syntax .
@@ -5,8 +39,9 @@ mod IMP-SEMANTICS-DENOTATIONAL is including IMP-SYNTAX + STATE + CPO .
   ---subsorts Error < State .
 
   op [[_]] : Syntax  -> CPO .    --- Syntax interpreted in CPOs
-  op Error : -> State .
-  op err : -> Id .
+  --- Ex. 83 additions — see file docstring above.
+  op Error : -> State .          --- pure-error State (for AExp/BExp propagation)
+  op err : -> Id .               --- reserved "silent-failure" flag identifier
   ---op <_,_> : Syntax Syntax -> CPO .
 
   var X : Id . var Xl : List{Id} .  var I : Int .  var A1 A2 A : AExp .

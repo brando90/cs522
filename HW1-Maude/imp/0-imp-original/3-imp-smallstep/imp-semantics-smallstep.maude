@@ -1,3 +1,44 @@
+--- ============================================================================
+--- CS522 HW1 / Exercise 70 (p. 155) — small-step semantics with div-by-zero.
+---
+--- This file extends the course-provided IMP small-step SOS (Figures 3.14 and
+--- 3.15 in Grigore Roșu's "Programming Language Semantics") to produce
+--- derivations of sequents whose right-hand-side configurations contain
+--- `error` as their syntactic component, in response to division by zero.
+---
+--- The pristine, pre-exercise version lives in
+---   imp-semantics-smallstep-original.maude
+--- and can be diffed against this one to see exactly the Ex. 70 additions.
+---
+--- Key design difference vs. HW1's Ex. 56 big-step solution:
+---   Small-step rewrites must always produce a *well-sorted* configuration
+---   at each step (unlike big-step which collapses to a pure `< Error >`
+---   result). So we cannot simply use an "Error state" trick. Instead we
+---   introduce **three error constants**, one per sort:
+---
+---     op errorAr   : -> AExp .    --- error value for arithmetic expressions
+---     op errorBool : -> BExp .    --- error value for boolean expressions
+---     op errorStmt : -> Stmt .    --- error value for statements
+---
+--- Propagation strategy:
+---   (a) Three "sink" rules for `o_` at each error sort ensure a one-step
+---       relation stops rewriting once an error constant is reached (see
+---       "SmallStep-On-Errors" block below).
+---   (b) Every structural rule gets an extra case `if sub' ==Bool errorX`
+---       that yields the error constant at the outer sort. E.g. `A1 + A2`
+---       with `A1 ==> errorAr` yields `errorAr`, and `X = A ;` with `A ==>
+---       errorAr` yields `errorStmt` (coercion across sorts).
+---   (c) The transitive-closure rule `* Cfg => * Cfg'` is guarded by side
+---       conditions requiring the inner expression is *not* an error
+---       constant; otherwise `*` would loop applying the error sink forever.
+---       This is what the awkward-looking four crl rules at the top of
+---       IMP-CONFIGURATIONS-SMALLSTEP achieve.
+---
+--- The division-by-zero rule itself:
+---   crl o < I1 / I2, Sigma > => < I1 /Int I2, Sigma > if I2 =/=Bool 0 .
+---   crl o < I1 / I2, Sigma > => < errorAr,    Sigma > if I2 ==Bool 0 .
+--- ============================================================================
+
 mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
   sorts Configuration ExtendedConfiguration .
   subsort Configuration < ExtendedConfiguration .
@@ -8,6 +49,10 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
   op o_ : Configuration -> ExtendedConfiguration [prec 80] .   --- one step
   op *_ : Configuration -> ExtendedConfiguration [prec 80] .   --- all steps
 
+  --- Ex. 70: three error constants, one per syntactic sort.
+  --- These are *syntactic* error markers that can appear in any configuration
+  --- component; they carry no further information (no error message, no origin
+  --- tag), matching the textbook's treatment of `error` as a single value.
   op errorAr : -> AExp .
   op errorBool : -> BExp .
   op errorStmt : -> Stmt .
@@ -16,8 +61,15 @@ mod IMP-CONFIGURATIONS-SMALLSTEP is including IMP-SYNTAX + STATE .
   var Sigma : State .
   var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 : BExp .  var S S' S1 S1' S2 : Stmt .
   var P : Pgm .
+ --- Ex. 70: transitive-closure rules (rewrite `*` to `*`) guarded against
+ --- error constants. The original one-line version (commented out below)
+ --- would loop on an error sink, because `o < errorAr, .State >` rewrites
+ --- back into itself, so `*` would keep firing. These guards stop `*` from
+ --- peeling another step off once the inner expression is the error constant
+ --- or the state has been reset to .State by an error sink.
  --- crl * Cfg => * Cfg' if o Cfg => Cfg' .
- --- in words, recurse only if your not in an error already (i.e. State != .State OR A != Error)
+ --- in words: recurse only if you're not in an error already
+ ---          (i.e. State != .State OR A != errorX).
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < A, Sigma > /\ A =/=Bool errorAr .
  crl * Cfg => * Cfg' if o Cfg => Cfg' /\ Cfg => < A, Sigma > /\ Sigma =/=Bool .State .
 
@@ -36,7 +88,20 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
   var X : Id .  var Sigma Sigma' : State .  var I I1 I2 : Int .  var Xl : List{Id} .
   var A A' A1 A1' A2 A2' : AExp .  var B B' B1 B1' B2 : BExp .  var S S' S1 S1' S2 : Stmt .
 
---- SmallStep-On-Errors
+--- ---------------------------------------------------------------------------
+--- SmallStep-On-Errors — the error "sink" rules.
+---
+--- Each error constant, when paired with any state, one-step-rewrites to
+--- `< errorX, .State >`. Pairing is over both `Sigma =/=Bool .State` and
+--- `Sigma ==Bool .State` separately so that the side-conditioned `*`
+--- closure in IMP-CONFIGURATIONS-SMALLSTEP terminates exactly once the
+--- state has been reset to `.State` (the guards there use that condition).
+---
+--- Without these, error constants would be stuck terms under `o`, and the
+--- `rew *` commands in `my_tests_small.m` would not visibly converge to
+--- an error result — they'd stop at some intermediate partially-reduced
+--- configuration and give a misleading display.
+--- ---------------------------------------------------------------------------
   crl o < errorAr, Sigma > => < errorAr, .State > if Sigma =/=Bool .State .
   crl o < errorAr, Sigma > => < errorAr, .State > if Sigma ==Bool .State .
 
@@ -62,15 +127,29 @@ mod IMP-SEMANTICS-SMALLSTEP is including IMP-CONFIGURATIONS-SMALLSTEP .
 
   rl o < I1 + I2,Sigma > => < I1 +Int I2,Sigma > .
 
---- SmallStep-DIV
+--- ---------------------------------------------------------------------------
+--- SmallStep-DIV — *the* rule Ex. 70 targets.
+---
+--- Lines 1–2: reduce the left operand. If the step produces a non-error A1',
+---            keep reducing structurally; if it produces errorAr, lift the
+---            error up to the whole A1/A2 term.
+--- Lines 3–4: same pattern for the right operand. (Note: this fires even
+---            when A1 has not yet been reduced to a value; strictness is
+---            handled only through the axiom rule at the bottom.)
+--- Lines 5–6: the axiom (value/value case):
+---              I1 / I2  =>  I1 /Int I2   if I2 ≠ 0
+---              I1 / I2  =>  errorAr      if I2 = 0
+--- ---------------------------------------------------------------------------
  crl o < A1 / A2,Sigma > => < A1' / A2,Sigma > if o < A1,Sigma > => < A1',Sigma > /\ A1' =/=Bool errorAr .
  crl o < A1 / A2,Sigma > => < errorAr,Sigma > if o < A1,Sigma > => < A1',Sigma > /\ A1' ==Bool errorAr .
 
  crl o < A1 / A2,Sigma > => < A1 / A2',Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' =/=Bool errorAr .
  crl o < A1 / A2,Sigma > => < errorAr,Sigma > if o < A2,Sigma > => < A2',Sigma > /\ A2' ==Bool errorAr .
 
- --- actually I don't think we need this, because variables without values shouldn't exist
- --- crl o < A1 / A2,Sigma > => < errorAr,Sigma > if A2 ==Bool 0 . --- TODO do we need this?
+ --- Design note: no need for a rule catching `A2 ==Bool 0` literally,
+ --- because the divisor must first reduce to an Int literal via the rules
+ --- above; division-by-zero is then caught by the I1/I2 axiom below.
+ --- crl o < A1 / A2,Sigma > => < errorAr,Sigma > if A2 ==Bool 0 . --- (not needed)
 
  crl o < I1 / I2,Sigma > => < I1 /Int I2,Sigma > if I2 =/=Bool 0 .
  crl o < I1 / I2,Sigma > => < errorAr,Sigma > if I2 ==Bool 0 .

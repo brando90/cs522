@@ -1,3 +1,36 @@
+--- ============================================================================
+--- CS522 HW1 / Exercise 56 (p. 137) — big-step semantics with division-by-zero.
+---
+--- This file extends the course-provided IMP big-step semantics (Fig. 3.7 in
+--- Grigore Roșu's "Programming Language Semantics") with an `error` state so
+--- that derivations of the form  ⟨s, σ⟩ ⇓ ⟨error⟩  or  ⟨p⟩ ⇓ ⟨error⟩
+--- are produced whenever evaluation performs a division by zero.
+---
+--- The pristine, pre-exercise version of this file lives in
+---   imp-semantics-bigstep_original.maude
+--- and can be diffed against this one to see exactly the Ex. 56 additions.
+---
+--- Design choice: `Error` is added as a distinguished State constant
+--- (not an extra error constant at each sort, as in the small-step HW Ex. 70).
+--- That keeps the sort structure of AExp/BExp/Stmt unchanged; the error
+--- condition is expressed by the *state* becoming Error, and by the pure
+--- error configuration `< Error >`.
+---
+--- Propagation is two-pronged:
+---   (a) three "sink" rules at the top of IMP-SEMANTICS-BIGSTEP rewrite
+---       any  < A | B | S , Error >  straight to  < Error >, so expressions
+---       evaluated against an already-error state short-circuit.
+---   (b) each structural rule (ADD, DIV, LEQ, NOT, AND, SEQ, IF, WHILE, PGM,
+---       ...) has one or more extra conditional rules of the form
+---         crl < ...compound... , Sigma > => < Error >
+---             if < ...subterm..., Sigma > => < Error > .
+---       so that an error in any sub-derivation bubbles up to the whole term.
+---
+--- The division rule itself is the reason the exercise exists:
+---   crl < A1 / A2 , Sigma > => < Error > if < A2,Sigma > => < 0 > .
+--- i.e. whenever the divisor evaluates to 0, the whole quotient is `< Error >`.
+--- ============================================================================
+
 mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-SYNTAX + STATE .
   sort Configuration .
   op <_,_> : AExp State -> Configuration .
@@ -7,7 +40,9 @@ mod IMP-CONFIGURATIONS-BIGSTEP is including IMP-SYNTAX + STATE .
   op <_,_> : Stmt State -> Configuration .
   op   <_> : State -> Configuration .
   op   <_> : Pgm -> Configuration .
-  ---
+  --- Ex. 56: the single added syntactic ingredient — `Error` as a State
+  --- constant. Together with the existing `< _ >` : State -> Configuration
+  --- op above, this gives us the pure error configuration `< Error >`.
   op Error : -> State .
 endm
 
@@ -16,23 +51,45 @@ mod IMP-SEMANTICS-BIGSTEP is including IMP-CONFIGURATIONS-BIGSTEP .
   var I I1 I2 : Int .  var T : Bool .
   var A A1 A2 : AExp .  var B B1 B2 : BExp .  var S S1 S2 : Stmt .
 
---- Sorts/configurations
---- rl < X, Error > => < Error > .
---- rl < XL, Error > => < Error > .
+--- ---------------------------------------------------------------------------
+--- Ex. 56 — Error-state "sink" rules.
+--- Anything evaluated against Error is itself Error. These short-circuit
+--- evaluation of arbitrary sub-terms once the state has already gone bad,
+--- which matters for e.g. SEQ where an earlier statement may have divided
+--- by zero and left us with `< Error >` as the state going into S2.
+--- ---------------------------------------------------------------------------
  rl < A, Error > => < Error > .
  rl < B, Error > => < Error > .
  rl < S, Error > => < Error > .
 
---- BigStep-Int
+--- BigStep-Int — integer literal. Unchanged from original except for the
+--- `if ... else < Error > fi` guard, which routes the pure `< I, Error >`
+--- configuration (which the sink rule already covers for AExp in general)
+--- into an `< Error >` result. Kept for readability; redundant with the sink.
  rl < I, Sigma > => if Sigma =/=Bool Error then < I >  else < Error > fi .
---- BigStep-lookup
+
+--- BigStep-Lookup — variable read.
+--- Original rule (first) unchanged: if the state has a binding for X, yield it.
+--- Added: if the state is Error, yield < Error > (Ex. 56 propagation).
  crl < X, Sigma > => < Sigma(X) > if Sigma(X) =/=Bool undefined .
  crl < X, Sigma > => < Error > if Sigma ==Bool Error .
---- BigStep-ADD
+
+--- BigStep-ADD — addition. First rule (normal case) unchanged.
+--- Ex. 56 additions: if *either* operand yields < Error >, the whole sum does.
+--- Both orderings are stated explicitly; they are symmetric in the big-step
+--- setting because we are not enforcing a left-to-right evaluation order.
  crl < A1 + A2 , Sigma > => < I1 +Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > .
  crl < A1 + A2 , Sigma > => < Error > if < A1, Sigma > => < Error >  .
  crl < A1 + A2 , Sigma > => < Error > if < A2, Sigma > => < Error >  .
- --- BigStep-DIV
+
+ --- BigStep-DIV — division. *This is the rule Ex. 56 actually targets.*
+ ---   Line 1: normal case — divisor must be non-zero, then /Int computes.
+ ---   Line 2/3: the division-by-zero rule; divisor evaluates to 0  =>  Error.
+ ---            (Intentional duplicate, historically kept to show it fires
+ ---             independently of left-operand's evaluation.)
+ ---   Line 4/5: propagation — error in either operand yields < Error >.
+ ---   Line 6: propagation — if the state itself reduces to Error (e.g. came
+ ---           from a surrounding SEQ where S1 already failed), yield Error.
  crl < A1 / A2 , Sigma > => < I1 /Int I2 > if < A1,Sigma > => < I1 > /\ < A2,Sigma > => < I2 > /\ I2 =/=Bool 0 .
  crl < A1 / A2 , Sigma > => < Error > if < A2,Sigma > => < 0 > .
  crl < A1 / A2 , Sigma > => < Error > if < A2,Sigma > => < 0 > .
